@@ -10,14 +10,14 @@ create TABLE boards(
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES users (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 create TABLE columns(
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
     board_id INTEGER,
-    FOREIGN KEY (board_id) REFERENCES boards (id)
+    FOREIGN KEY (board_id) REFERENCES boards (id) ON DELETE CASCADE
 );
 
 create TABLE tasks(
@@ -25,14 +25,14 @@ create TABLE tasks(
     title VARCHAR(255),
     content VARCHAR(255),
     column_id INTEGER,
-    FOREIGN KEY (column_id) REFERENCES columns (id)
+    FOREIGN KEY (column_id) REFERENCES columns (id) ON DELETE CASCADE
 );
 
 create TABLE comments(
     id SERIAL PRIMARY KEY,
     content VARCHAR(255),
     task_id INTEGER,
-    FOREIGN KEY (task_id) REFERENCES tasks (id)
+    FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE
 );
 
 create TABLE labels(

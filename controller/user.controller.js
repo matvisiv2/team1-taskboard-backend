@@ -1,6 +1,6 @@
 const db = require('../db');
 
-class UsersController {
+class UserController {
 	async createUser (req, res) {
 		try {
 			const { email, firstName, lastName } = req.body;
@@ -61,4 +61,4 @@ class UsersController {
 	}
 }
 
-module.exports = new UsersController();
+module.exports = new UserController();
