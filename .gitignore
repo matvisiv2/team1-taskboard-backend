@@ -1,1 +1,21 @@
-node_modules
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+out/
+coverage/
+
+# Logs
+npm-debug.log*
+
+# Environment files (секрети!)
+.env
+.env.local
+.env.*.local
+
+# Editor settings
+.vscode/
+.idea/
+*.swp

@@ -1,11 +1,11 @@
-const express = require('express')
+const express = require('express');
+const usersRouter = require('./routes/users.routes');
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 8080;
 
-const app = express()
+const app = express();
 
-app.get('/', (req, res) => {
-    res.send('POSTGRES + NODE')
-})
+app.use(express.json());
+app.use('/api', usersRouter);
 
-app.listen(PORT, () => console.log(`server started on port ${PORT}`))
+app.listen(PORT, () => console.log(`server started on port ${PORT}`));
