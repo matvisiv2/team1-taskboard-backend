@@ -38,7 +38,12 @@ class BoardController {
 	}
 	async updateBoard (req, res) {
 		try {
-			// TODO
+			const { id, title, user_id } = req.body;
+			const board = await db.query(
+				'UPDATE boards set title = $1 WHERE id = $2 RETURNING *',
+				[title, id],
+			);
+			res.json(board.rows[0]);
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: 'Database error' });
@@ -46,7 +51,12 @@ class BoardController {
 	}
 	async deleteBoard (req, res) {
 		try {
-			//TODO
+			const id = req.params.id;
+			const board = await db.query(
+				'DELETE FROM boards WHERE id = $1 RETURNING *',
+				[id],
+			);
+			res.json(board.rows[0]);
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: 'Database error' });
