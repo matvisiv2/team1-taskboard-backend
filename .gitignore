@@ -10,7 +10,7 @@ coverage/
 # Logs
 npm-debug.log*
 
-# Environment files (секрети!)
+# Environment files
 .env
 .env.local
 .env.*.local
