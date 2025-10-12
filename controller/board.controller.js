@@ -26,6 +26,34 @@ class BoardController {
 			res.status(500).json({ error: 'Database error' });
 		}
 	}
+	async getBoardsByUserWithStatistics (req, res) {
+		try {
+			const userId = req.params.user_id;
+			const boards = await db.query(
+				`
+					SELECT 
+						b.id,
+						b.title,
+						b.user_id,
+						b.created_at,
+									b.updated_at,
+						COUNT(DISTINCT c.id) AS column_count,
+						COUNT(t.id) AS task_count
+					FROM boards b
+					LEFT JOIN columns c ON b.id = c.board_id
+					LEFT JOIN tasks t ON c.id = t.column_id
+					WHERE b.user_id = $1
+					GROUP BY b.id, b.title, b.user_id, b.created_at, b.updated_at
+					ORDER BY b.id;
+				`,
+				[userId],
+			);
+			res.json(boards.rows);
+		} catch (err) {
+			console.log(err);
+			res.status(500).json({ error: 'Database error' });
+		}
+	}
 	async getBoardById (req, res) {
 		try {
 			const id = req.params.id;
