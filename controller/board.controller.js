@@ -16,9 +16,9 @@ class BoardController {
 	}
 	async getBoardsByUser (req, res) {
 		try {
-			const userId = req.params.user_id;
+			const user_id = req.params.user_id;
 			const boards = await db.query('SELECT * FROM boards WHERE user_id = $1', [
-				userId,
+				user_id,
 			]);
 			res.json(boards.rows);
 		} catch (err) {
@@ -28,7 +28,7 @@ class BoardController {
 	}
 	async getBoardsByUserWithStatistics (req, res) {
 		try {
-			const userId = req.params.user_id;
+			const user_id = req.params.user_id;
 			const boards = await db.query(
 				`
 					SELECT 
@@ -36,7 +36,7 @@ class BoardController {
 						b.title,
 						b.user_id,
 						b.created_at,
-									b.updated_at,
+						b.updated_at,
 						COUNT(DISTINCT c.id) AS column_count,
 						COUNT(t.id) AS task_count
 					FROM boards b
@@ -46,7 +46,7 @@ class BoardController {
 					GROUP BY b.id, b.title, b.user_id, b.created_at, b.updated_at
 					ORDER BY b.id;
 				`,
-				[userId],
+				[user_id],
 			);
 			res.json(boards.rows);
 		} catch (err) {
@@ -68,7 +68,7 @@ class BoardController {
 		try {
 			const { id, title, user_id } = req.body;
 			const board = await db.query(
-				'UPDATE boards set title = $1 WHERE id = $2 RETURNING *',
+				'UPDATE boards SET title = $1 WHERE id = $2 RETURNING *',
 				[title, id],
 			);
 			res.json(board.rows[0]);

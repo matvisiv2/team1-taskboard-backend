@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const userRouter = require('./routes/user.routes');
 const boardRouter = require('./routes/board.routes');
+const columnRouter = require('./routes/column.routes');
 
 const SERVER_PORT = process.env.SERVER_PORT || 4444;
 const DB_PORT = process.env.DB_PORT || 5432;
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use(cors());
 app.use('/api', userRouter);
 app.use('/api', boardRouter);
+app.use('/api', columnRouter);
 
 async function startServer () {
 	try {
