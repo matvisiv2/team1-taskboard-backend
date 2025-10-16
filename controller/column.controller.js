@@ -34,8 +34,8 @@ class ColumnController {
 			const columns = await db.query(
 				`
 					SELECT 
-						c.id AS column_id,
-						c.title AS column_title,
+						c.id AS id,
+						c.title AS title,
 						COALESCE(
 							JSON_AGG(
 							JSON_BUILD_OBJECT(
@@ -87,7 +87,7 @@ class ColumnController {
 			res.status(500).json({ error: 'Database error' });
 		}
 	}
-	async deleteColumn (req, res) {
+	async removeColumn (req, res) {
 		try {
 			const id = req.params.id;
 			const column = await db.query(

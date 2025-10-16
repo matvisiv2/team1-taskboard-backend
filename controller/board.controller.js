@@ -77,7 +77,7 @@ class BoardController {
 			res.status(500).json({ error: 'Database error' });
 		}
 	}
-	async deleteBoard (req, res) {
+	async removeBoard (req, res) {
 		try {
 			const id = req.params.id;
 			const board = await db.query(
