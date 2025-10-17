@@ -1,9 +1,10 @@
 const express = require('express');
-const db = require('./db');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+
+const db = require('./db');
 
 dotenv.config();
 
@@ -12,9 +13,8 @@ const boardRouter = require('./routes/board.routes');
 const columnRouter = require('./routes/column.routes');
 
 const SERVER_PORT = process.env.SERVER_PORT || 4444;
-const DB_PORT = process.env.DB_PORT || 5432;
 
-const app = express(); 
+const app = express();
 
 app.use(express.json());
 app.use(cors());
@@ -23,12 +23,12 @@ app.use(morgan('dev')); // log the requests in console
 app.use('/api', userRouter);
 app.use('/api', boardRouter);
 app.use('/api', columnRouter);
- 
+
 async function startServer () {
 	try {
 		await db.query('SELECT NOW()');
 		console.log(
-			`DB running on port ${DB_PORT}. Connected to PostgreSQL successfully`,
+			`DB running on port ${db.options.port}. Connected to PostgreSQL successfully`,
 		);
 
 		app.listen(SERVER_PORT, () =>
