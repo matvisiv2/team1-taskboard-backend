@@ -8,7 +8,7 @@ class UserController {
 				'INSERT INTO users (email, first_name, last_name) values ($1, $2, $3) RETURNING *',
 				[email, firstName, lastName],
 			);
-			res.json(newUser.rows[0]);
+			res.status(201).json(newUser.rows[0]);
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: 'Database error' });

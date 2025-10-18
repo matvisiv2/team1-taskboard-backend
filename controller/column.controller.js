@@ -8,7 +8,7 @@ class ColumnController {
 				'INSERT INTO columns (title, board_id) values ($1, $2) RETURNING *',
 				[title, board_id],
 			);
-			res.json(newColumn.rows[0]);
+			res.status(201).json(newColumn.rows[0]);
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: 'Database error' });

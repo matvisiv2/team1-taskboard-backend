@@ -8,7 +8,7 @@ class BoardController {
 				'INSERT INTO boards (title, user_id) values ($1, $2) RETURNING *',
 				[title, user_id],
 			);
-			res.json(newBoard.rows[0]);
+			res.status(201).json(newBoard.rows[0]);
 		} catch (err) {
 			console.log(err);
 			res.status(500).json({ error: 'Database error' });

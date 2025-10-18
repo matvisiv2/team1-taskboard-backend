@@ -4,10 +4,11 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
-const db = require('./db');
+const db = require('./config/database');
 
 dotenv.config();
 
+const authRouter = require('./routes/auth.routes');
 const userRouter = require('./routes/user.routes');
 const boardRouter = require('./routes/board.routes');
 const columnRouter = require('./routes/column.routes');
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet()); // helmet is a security middleware that helps us protect our app by setting various HTTP headers
 app.use(morgan('dev')); // log the requests in console
+app.use('/api', authRouter);
 app.use('/api', userRouter);
 app.use('/api', boardRouter);
 app.use('/api', columnRouter);
