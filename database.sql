@@ -2,108 +2,149 @@
 -- 📘  DATABASE SCHEMA: Task Board (Trello-like)
 -- ============================
 
--- 🧑 USERS
-CREATE TABLE users (
+-- 🧑 user
+CREATE TABLE tuser (
     id SERIAL PRIMARY KEY,
+    userType ENUM ('0', '1', '2') NOT NULL,
+    firstName VARCHAR(255) NOT NULL,
+    lastName VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    passwordHash TEXT NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 📋 BOARDS
-CREATE TABLE boards (
+-- 📋 board
+CREATE TABLE board (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    user_id INTEGER NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    userId INTEGER NOT NULL REFERENCES tuser (id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 📊 COLUMNS
-CREATE TABLE columns (
+-- 🧑🧑 collaborator
+CREATE TABLE collaborator (
+    userId INTEGER NOT NULL REFERENCES tuser (id) ON DELETE CASCADE,
+    boardId INTEGER REFERENCES board (id) ON DELETE CASCADE,
+    PRIMARY KEY (userId, boardId)
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 📊 column
+CREATE TABLE column (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    board_id INTEGER NOT NULL REFERENCES boards (id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    boardId INTEGER NOT NULL REFERENCES board (id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 📝 TASKS
-CREATE TABLE tasks (
+-- 📝 task
+CREATE TABLE task (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content VARCHAR(255),
-    column_id INTEGER NOT NULL REFERENCES columns (id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    done BOOLEAN NOT NULL,
+    archived BOOLEAN NOT NULL,
+    columnId INTEGER NOT NULL REFERENCES column (id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 💬 COMMENTS
-CREATE TABLE comments (
+-- 💬 comment
+CREATE TABLE comment (
     id SERIAL PRIMARY KEY,
     content VARCHAR(255) NOT NULL,
-    task_id INTEGER NOT NULL REFERENCES tasks (id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    taskId INTEGER NOT NULL REFERENCES task (id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 🏷️ LABELS
-CREATE TABLE labels (
+-- 🏷️ label
+CREATE TABLE label (
     id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
+    title VARCHAR(255),
     color VARCHAR(50) NOT NULL
+    boardId INTEGER NOT NULL REFERENCES board (id) ON DELETE CASCADE,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 🔗 TASKS_LABELS (many-to-many)
-CREATE TABLE tasks_labels (
-    task_id INTEGER REFERENCES tasks (id) ON DELETE CASCADE,
-    label_id INTEGER REFERENCES labels (id) ON DELETE CASCADE,
-    PRIMARY KEY (task_id, label_id)
+-- 🔗 tasklabel (many-to-many)
+CREATE TABLE tasklabel (
+    taskId INTEGER REFERENCES task (id) ON DELETE CASCADE,
+    labelId INTEGER REFERENCES label (id) ON DELETE CASCADE,
+    PRIMARY KEY (taskId, labelId),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================
 -- ⚙️  INDEXES (for database performance)
 -- ============================
 
-CREATE INDEX idx_boards_user_id        ON boards(user_id);
-CREATE INDEX idx_columns_board_id      ON columns(board_id);
-CREATE INDEX idx_tasks_column_id       ON tasks(column_id);
-CREATE INDEX idx_comments_task_id      ON comments(task_id);
-CREATE INDEX idx_tasks_labels_task_id  ON tasks_labels(task_id);
-CREATE INDEX idx_tasks_labels_label_id ON tasks_labels(label_id);
+CREATE INDEX idxBoardUserId         ON board(userId);
+CREATE INDEX idxColumnBoardId       ON column(boardId);
+CREATE INDEX idxCollaboratorUserId  ON collaborator(userId);
+CREATE INDEX idxCollaboratorBoardId ON collaborator(boardId);
+CREATE INDEX idxTaskColumnId        ON task(columnId);
+CREATE INDEX idxCommentTaskId       ON comment(taskId);
+CREATE INDEX idxTasklabelTaskId     ON tasklabel(taskId);
+CREATE INDEX idxTasklabelLabelId    ON tasklabel(labelId);
 
 -- ============================
--- 🕒 OPTIONAL: Trigger for updated_at auto-update
+-- 🕒 OPTIONAL: Trigger for updatedAt auto-update
 -- ============================
 
--- Function that updates updated_at on UPDATE
-CREATE OR REPLACE FUNCTION set_updated_at()
+-- Function that updates updatedAt on UPDATE
+CREATE OR REPLACE FUNCTION setUpdatedAt()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.updatedAt = NOW();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Triggers for all tables where updated_at is present
-CREATE TRIGGER trg_users_updated_at
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+-- Triggers for all tables where updatedAt is present
+CREATE TRIGGER trgUserUpdatedAt
+BEFORE UPDATE ON tuser
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
 
-CREATE TRIGGER trg_boards_updated_at
-BEFORE UPDATE ON boards
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trgBoardUpdatedAt
+BEFORE UPDATE ON board
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
 
-CREATE TRIGGER trg_columns_updated_at
-BEFORE UPDATE ON columns
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trgCollaboratorUpdatedAt
+BEFORE UPDATE ON collaborator
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
 
-CREATE TRIGGER trg_tasks_updated_at
-BEFORE UPDATE ON tasks
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trgColumnUpdatedAt
+BEFORE UPDATE ON column
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
 
-CREATE TRIGGER trg_comments_updated_at
-BEFORE UPDATE ON comments
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trgTaskUpdatedAt
+BEFORE UPDATE ON task
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
+
+CREATE TRIGGER trgCommentUpdatedAt
+BEFORE UPDATE ON comment
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
+
+CREATE TRIGGER trgLabelUpdatedAt
+BEFORE UPDATE ON label
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
+
+CREATE TRIGGER trgTasklabelUpdatedAt
+BEFORE UPDATE ON tasklabel
+FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
+

@@ -4,11 +4,11 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const pool = new Pool({
-	user: process.env.PG_USER || 'postgres',
-	password: process.env.PG_PASSWORD || 'postgres',
-	host: process.env.PG_HOST || 'localhost',
-	port: process.env.PG_PORT || 5432,
-	database: process.env.PG_DATABASE || 'team1_taskboard_db',
+	user: process.env.DB_USER || 'postgres',
+	password: process.env.DB_PASSWORD || 'postgres',
+	host: process.env.DB_HOST || 'localhost',
+	port: process.env.DB_PORT || 5432,
+	database: process.env.DB_DATABASE || 'team1_taskboard_db',
 });
 
 module.exports = pool;
