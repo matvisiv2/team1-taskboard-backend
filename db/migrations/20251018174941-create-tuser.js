@@ -8,7 +8,7 @@ module.exports = {
 			firstName: { type: Sequelize.STRING, allowNull: false },
 			lastName: { type: Sequelize.STRING, allowNull: false },
 			email: { type: Sequelize.STRING, allowNull: false, unique: true },
-			passwordHash: { type: Sequelize.TEXT, allowNull: false },
+			password: { type: Sequelize.TEXT, allowNull: false },
 			createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
 			updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
 			deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },

@@ -1,20 +1,32 @@
 'use strict';
-const { Model, Sequelize } = require('sequelize');
+const { Model, Sequelize, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 const sequelize = require('./../../config/database');
 
 module.exports = sequelize.define(
 	'tuser',
 	{
-		id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-		userType: { type: Sequelize.ENUM('0', '1', '2'), allowNull: false },
-		firstName: { type: Sequelize.STRING, allowNull: false },
-		lastName: { type: Sequelize.STRING, allowNull: false },
-		email: { type: Sequelize.STRING, allowNull: false, unique: true },
-		passwordHash: { type: Sequelize.TEXT, allowNull: false },
-		createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-		updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-		deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
+		id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+		userType: { type: DataTypes.ENUM('0', '1', '2'), allowNull: false },
+		firstName: { type: DataTypes.STRING, allowNull: false },
+		lastName: { type: DataTypes.STRING, allowNull: false },
+		email: { type: DataTypes.STRING, allowNull: false, unique: true },
+		password: { type: DataTypes.TEXT, allowNull: false },
+		confirmPassword: {
+			type: DataTypes.VIRTUAL,
+			set (value) {
+				if (value === this.password) {
+					const hashPassword = bcrypt.hashSync(value, 10);
+					this.setDataValue('password', hashPassword);
+				} else {
+					throw new Error('Password and comfirm password must be same');
+				}
+			},
+		},
+		createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
+		updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
+		deletedAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
 	},
 	{
 		paranoid: true,
