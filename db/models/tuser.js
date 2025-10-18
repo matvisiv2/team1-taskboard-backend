@@ -24,9 +24,17 @@ module.exports = sequelize.define(
 				}
 			},
 		},
-		createdAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
-		updatedAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
-		deletedAt: { type: DataTypes.DATE, defaultValue: Sequelize.fn('NOW') },
+		createdAt: {
+			type: DataTypes.DATE,
+			defaultValue: Sequelize.fn('NOW'),
+			allowNull: false,
+		},
+		updatedAt: {
+			type: DataTypes.DATE,
+			defaultValue: Sequelize.fn('NOW'),
+			allowNull: false,
+		},
+		deletedAt: { type: DataTypes.DATE },
 	},
 	{
 		paranoid: true,

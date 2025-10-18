@@ -14,9 +14,17 @@ module.exports = sequelize.define(
 			references: { model: 'tuser', key: 'id' },
 			onDelete: 'CASCADE',
 		},
-		createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-		updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-		deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
+		createdAt: {
+			type: Sequelize.DATE,
+			defaultValue: Sequelize.fn('NOW'),
+			allowNull: false,
+		},
+		updatedAt: {
+			type: Sequelize.DATE,
+			defaultValue: Sequelize.fn('NOW'),
+			allowNull: false,
+		},
+		deletedAt: { type: Sequelize.DATE },
 	},
 	{
 		paranoid: true,

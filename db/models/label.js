@@ -23,10 +23,9 @@ module.exports = sequelize.define(
 		},
 		createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
 		updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-		deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
 	},
 	{
-		paranoid: true,
+		paranoid: false,
 		freezeTableName: true,
 		modelName: 'label',
 	},

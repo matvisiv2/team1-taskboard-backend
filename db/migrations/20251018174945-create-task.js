@@ -22,9 +22,9 @@ module.exports = {
 				references: { model: 'column', key: 'id' },
 				onDelete: 'CASCADE',
 			},
-			createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-			updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-			deletedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
+			createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW'), allowNull: false },
+			updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW'), allowNull: false },
+			deletedAt: { type: Sequelize.DATE },
 		});
 	},
 	async down (queryInterface, Sequelize) {
