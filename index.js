@@ -15,6 +15,7 @@ const columnRouter = require('./routes/column.routes');
 const catchAsync = require('./utils/catchAsync');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/error.controller');
+const sequelize = require('./config/database');
 
 const app = express();
 
@@ -40,20 +41,23 @@ app.use(globalErrorHandler);
 
 const SERVER_PORT = process.env.SERVER_PORT || 4444;
 
-async function startServer () {
+const startServer = async () => {
 	try {
-		await db.query('SELECT NOW()');
+		await sequelize.authenticate();
+
 		console.log(
-			`DB running on port ${db.options.port}. Connected to PostgreSQL successfully`,
+			`Connected to PostgreSQL successfully (DB: ${sequelize.getDatabaseName()}, Port: ${
+				sequelize.config.port
+			})`,
 		);
 
-		app.listen(SERVER_PORT, () =>
-			console.log(`server started on port ${SERVER_PORT}`),
-		);
+		app.listen(SERVER_PORT, () => {
+			console.log(`Server started on port ${SERVER_PORT}`);
+		});
 	} catch (err) {
 		console.error(`DB connection failed: ${err.message}`);
 		process.exit(1);
 	}
-}
+};
 
 startServer();
