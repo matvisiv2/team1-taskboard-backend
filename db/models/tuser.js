@@ -3,24 +3,87 @@ const { Model, Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 
 const sequelize = require('./../../config/database');
+const AppError = require('../../utils/appError');
 
 module.exports = sequelize.define(
 	'tuser',
 	{
 		id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-		userType: { type: DataTypes.ENUM('0', '1', '2'), allowNull: false },
-		firstName: { type: DataTypes.STRING, allowNull: false },
-		lastName: { type: DataTypes.STRING, allowNull: false },
-		email: { type: DataTypes.STRING, allowNull: false, unique: true },
-		password: { type: DataTypes.TEXT, allowNull: false },
+		userType: {
+			type: DataTypes.ENUM('0', '1', '2'),
+			allowNull: false,
+			validate: {
+				notNull: {
+					msg: 'userType cannot be null',
+				},
+				notEmpty: {
+					msg: 'userType cannot be empty',
+				},
+			},
+		},
+		firstName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			validate: {
+				notNull: {
+					msg: 'firstName cannot be null',
+				},
+				notEmpty: {
+					msg: 'firstName cannot be empty',
+				},
+			},
+		},
+		lastName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+			validate: {
+				notNull: {
+					msg: 'lastName cannot be null',
+				},
+				notEmpty: {
+					msg: 'lastName cannot be empty',
+				},
+			},
+		},
+		email: {
+			type: DataTypes.STRING,
+			unique: true,
+			allowNull: false,
+			validate: {
+				notNull: {
+					msg: 'email cannot be null',
+				},
+				notEmpty: {
+					msg: 'email cannot be empty',
+				},
+				isEmail: {
+					msg: 'Invalid E-mail id',
+				},
+			},
+		},
+		password: {
+			type: DataTypes.TEXT,
+			allowNull: false,
+			validate: {
+				notNull: {
+					msg: 'password cannot be null',
+				},
+				notEmpty: {
+					msg: 'password cannot be empty',
+				},
+			},
+		},
 		confirmPassword: {
 			type: DataTypes.VIRTUAL,
 			set (value) {
+				if (this.password.length < 7) {
+					throw new AppError('Password length must be grater than 7', 400);
+				}
 				if (value === this.password) {
 					const hashPassword = bcrypt.hashSync(value, 10);
 					this.setDataValue('password', hashPassword);
 				} else {
-					throw new Error('Password and comfirm password must be same');
+					throw new AppError('Password and comfirm password must be same', 400);
 				}
 			},
 		},
