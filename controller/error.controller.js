@@ -33,6 +33,39 @@ const sendErrorProd = (error, res) => {
 };
 
 const globalErrorHandler = (err, req, res, next) => {
+	if (err.name === 'JsonWebTokenError') {
+		err = new AppError('Invalid token', 401);
+	}
+
+	if (err.name === 'SequelizeForeignKeyConstraintError') {
+		const table = /"([^\\"]+)"/.exec(err.message)[1];
+		let message = '';
+		switch (table) {
+			case 'board':
+				message = "Don't exist user with this id";
+				break;
+			case 'column':
+				message = "Don't exist board with this id";
+				break;
+			case 'task':
+				message = "Don't exist column with this id";
+				break;
+			case 'comment':
+				message = "Don't exist task with this id";
+				break;
+			case 'label':
+				message = "Don't exist task with this id";
+				break;
+			case 'collaborato':
+				message = "Don't exist user or board with this id";
+				break;
+			default:
+				message = "Don't exist something with this id";
+				break;
+		}
+		err = new AppError(message, 400);
+	}
+
 	if (err.name === 'SequelizeValidationError') {
 		err = new AppError(err.message, 400);
 	}

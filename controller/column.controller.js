@@ -1,10 +1,10 @@
 class ColumnController {
 	async createColumn (req, res) {
 		// try {
-		// 	const { title, board_id } = req.body;
+		// 	const { title, boardId } = req.body;
 		// 	const newColumn = await db.query(
-		// 		'INSERT INTO columns (title, board_id) values ($1, $2) RETURNING *',
-		// 		[title, board_id],
+		// 		'INSERT INTO columns (title, boardId) values ($1, $2) RETURNING *',
+		// 		[title, boardId],
 		// 	);
 		// 	res.status(201).json(newColumn.rows[0]);
 		// } catch (err) {
@@ -14,10 +14,10 @@ class ColumnController {
 	}
 	async getColumnsByBoard (req, res) {
 		// try {
-		// 	const board_id = req.params.board_id;
+		// 	const boardId = req.params.boardId;
 		// 	const columns = await db.query(
-		// 		'SELECT * FROM columns WHERE board_id = $1',
-		// 		[board_id],
+		// 		'SELECT * FROM columns WHERE boardId = $1',
+		// 		[boardId],
 		// 	);
 		// 	res.json(columns.rows);
 		// } catch (err) {
@@ -27,7 +27,7 @@ class ColumnController {
 	}
 	async getColumnsByBoardWithTasks (req, res) {
 		// try {
-		// 	const board_id = req.params.board_id;
+		// 	const boardId = req.params.boardId;
 		// 	// TODO: check SQL request
 		// 	const columns = await db.query(
 		// 		`
@@ -47,12 +47,12 @@ class ColumnController {
 		// 					'[]'
 		// 				) AS tasks
 		// 			FROM columns c
-		// 			LEFT JOIN tasks t ON c.id = t.column_id
-		// 			WHERE c.board_id = $1
+		// 			LEFT JOIN tasks t ON c.id = t.columnId
+		// 			WHERE c.boardId = $1
 		// 			GROUP BY c.id, c.title
 		// 			ORDER BY c.id;
 		// 		`,
-		// 		[board_id],
+		// 		[boardId],
 		// 	);
 		// 	res.json(columns.rows);
 		// } catch (err) {
@@ -74,7 +74,7 @@ class ColumnController {
 	}
 	async updateColumn (req, res) {
 		// try {
-		// 	const { id, title, board_id } = req.body;
+		// 	const { id, title, boardId } = req.body;
 		// 	const column = await db.query(
 		// 		'UPDATE columns SET title = $1 WHERE id = $2 RETURNING *',
 		// 		[title, id],

@@ -58,9 +58,41 @@ class AuthController {
 
 		return res.json({
 			status: 'success',
+			firstName: result.firstName,
+			lastName: result.lastName,
 			token,
 		});
 	});
+
+	authentication = catchAsync(async (req, res, next) => {
+		// 1. get the token from headers
+		let idToken = '';
+		if (
+			req.headers.authorization &&
+			req.headers.authorization.startsWith('Bearer')
+		) {
+			// Bearer ajsdfodfgpupg
+			idToken = req.headers.authorization.split(' ')[1];
+		}
+		if (!idToken) {
+			return next(new AppError('Please login to get access', 401));
+		}
+
+		// 2. token verification
+		const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
+
+		// 3. get the user detail from db and add to req object
+		const freshUser = await tuser.findByPk(tokenDetail.id);
+		if (!freshUser) {
+			return next(new AppError('User no longer exists', 401));
+		}
+		req.user = freshUser;
+
+		return next();
+	});
+
+	// TODO: like authentication, but check if userId === userId of entity
+	// const redUserId = req.body.userId;
 }
 
 module.exports = new AuthController();
