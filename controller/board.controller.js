@@ -78,6 +78,7 @@ class BoardController {
 			return next(new AppError('Board not found', 404));
 		}
 
+		// check if user is owner or collaborator
 		if (board.userId !== userId) {
 			const collaborator = await collaboratorModel.findOne({
 				where: { boardId, userId },

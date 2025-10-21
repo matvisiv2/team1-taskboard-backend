@@ -1,9 +1,9 @@
 'use strict';
-const { Model, Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 const sequelize = require('./../../config/database');
 
-module.exports = sequelize.define(
+const column = sequelize.define(
 	'column',
 	{
 		id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
@@ -29,6 +29,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: true,
 		freezeTableName: true,
+		tableName: 'column',
+		timestamps: true,
 		modelName: 'column',
 	},
 );
+
+module.exports = column;

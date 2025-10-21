@@ -5,7 +5,7 @@ module.exports = {
 		await queryInterface.createTable('collaborator', {
 			userId: {
 				type: Sequelize.INTEGER,
-				references: { model: 'tuser', key: 'id' },
+				references: { model: 'user', key: 'id' },
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},

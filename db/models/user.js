@@ -1,12 +1,12 @@
 'use strict';
-const { Model, Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 
-const sequelize = require('./../../config/database');
+const sequelize = require('../../config/database');
 const AppError = require('../../utils/appError');
 
-module.exports = sequelize.define(
-	'tuser',
+const user = sequelize.define(
+	'user',
 	{
 		id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
 		userType: {
@@ -102,6 +102,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: true,
 		freezeTableName: true,
-		modelName: 'tuser',
+		tableName: 'user',
+		timestamps: true,
+		modelName: 'user',
 	},
 );
+
+module.exports = user;

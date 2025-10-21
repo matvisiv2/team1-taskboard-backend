@@ -1,15 +1,15 @@
 'use strict';
-const { Model, Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 const sequelize = require('./../../config/database');
 
-module.exports = sequelize.define(
+const collaborator = sequelize.define(
 	'collaborator',
 	{
 		userId: {
 			type: Sequelize.INTEGER,
 			allowNull: false,
-			references: { model: 'tuser', key: 'id' },
+			references: { model: 'user', key: 'id' },
 			onDelete: 'CASCADE',
 			primaryKey: true,
 		},
@@ -38,6 +38,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: true,
 		freezeTableName: true,
+		tableName: 'collaborator',
+		timestamps: true,
 		modelName: 'collaborator',
 	},
 );
+
+module.exports = collaborator;

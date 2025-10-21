@@ -6,7 +6,7 @@ npx sequelize-cli db:create
 npx sequelize-cli db:drop
 
 # create models
-npx sequelize-cli model:generate --name tuser --attributes userType:ENUM,firstName:string,lastName:string,email:string,password:text
+npx sequelize-cli model:generate --name user --attributes userType:ENUM,firstName:string,lastName:string,email:string,password:text
 npx sequelize-cli model:generate --name board --attributes title:string,userId:integer
 npx sequelize-cli model:generate --name collaborator --attributes userId:integer,boardId:integer
 npx sequelize-cli model:generate --name column --attributes title:string,boardId:integer

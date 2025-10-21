@@ -1,9 +1,9 @@
 'use strict';
-const { Model, Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 const sequelize = require('./../../config/database');
 
-module.exports = sequelize.define(
+const label = sequelize.define(
 	'label',
 	{
 		id: {
@@ -27,6 +27,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: false,
 		freezeTableName: true,
+		tableName: 'label',
+		timestamps: true,
 		modelName: 'label',
 	},
 );
+
+module.exports = label;

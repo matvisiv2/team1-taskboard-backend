@@ -1,9 +1,9 @@
 'use strict';
-const { Model, Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 
 const sequelize = require('./../../config/database');
 
-module.exports = sequelize.define(
+const board = sequelize.define(
 	'board',
 	{
 		id: {
@@ -18,7 +18,7 @@ module.exports = sequelize.define(
 		userId: {
 			type: DataTypes.INTEGER,
 			allowNull: false,
-			references: { model: 'tuser', key: 'id' },
+			references: { model: 'user', key: 'id' },
 			onDelete: 'CASCADE',
 		},
 		createdAt: {
@@ -38,6 +38,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: true,
 		freezeTableName: true,
+		tableName: 'board',
+		timestamps: true,
 		modelName: 'board',
 	},
 );
+
+module.exports = board;

@@ -1,9 +1,9 @@
 'use strict';
-const { Model, Sequelize } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 const sequelize = require('./../../config/database');
 
-module.exports = sequelize.define(
+const tasklabel = sequelize.define(
 	'tasklabel',
 	{
 		taskId: {
@@ -24,6 +24,10 @@ module.exports = sequelize.define(
 	{
 		paranoid: false,
 		freezeTableName: true,
+		tableName: 'tasklabel',
+		timestamps: true,
 		modelName: 'tasklabel',
 	},
 );
+
+module.exports = tasklabel;

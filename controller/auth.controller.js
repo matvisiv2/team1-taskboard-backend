@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
-const tuser = require('../db/models/tuser');
+const userModel = require('../db/models/user');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
@@ -14,7 +14,7 @@ const generateToken = (payload) => {
 class AuthController {
 	signUp = catchAsync(async (req, res, next) => {
 		const body = req.body;
-		const newUser = await tuser.create({
+		const newUser = await userModel.create({
 			userType: '0',
 			firstName: body.firstName,
 			lastName: body.lastName,
@@ -46,7 +46,7 @@ class AuthController {
 			return next(new AppError('Please provide email and password', 400));
 		}
 
-		const result = await tuser.findOne({ where: { email } });
+		const result = await userModel.findOne({ where: { email } });
 
 		if (!result || !(await bcrypt.compare(password, result.password))) {
 			return next(new AppError('Incorrect mail or password', 401));
@@ -76,7 +76,7 @@ class AuthController {
 		const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
 
 		// 3. get the user detail from db and add to req object
-		const freshUser = await tuser.findByPk(tokenDetail.id);
+		const freshUser = await userModel.findByPk(tokenDetail.id);
 		if (!freshUser) {
 			return next(new AppError('User no longer exists', 401));
 		}
@@ -88,7 +88,7 @@ class AuthController {
 	// TODO: like authentication, but check if userId === userId of entity
 
 	getMe = catchAsync(async (req, res) => {
-		const user = await tuser.findByPk(req.user.id);
+		const user = await userModel.findByPk(req.user.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
 		}
