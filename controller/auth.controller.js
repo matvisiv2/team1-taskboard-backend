@@ -81,19 +81,7 @@ class AuthController {
 	});
 
 	authentication = catchAsync(async (req, res, next) => {
-		// // 1. get the token from headers
-		// let idToken = '';
-		// if (
-		// 	req.headers.authorization &&
-		// 	req.headers.authorization.startsWith('Bearer')
-		// ) {
-		// 	// Bearer ajsdfodfgpupg
-		// 	idToken = req.headers.authorization.split(' ')[1];
-		// }
-		// // TODO: resolve issue with Bearer, and remove next if(){}
-		// if (!idToken) {
-		// 	idToken = req.headers.authorization.split(' ')[0];
-		// }
+		// 1. get the token from headers
 		const idToken = (req.headers.authorization || '').replace(/Bearer\s/, '');
 
 		if (!idToken) {
