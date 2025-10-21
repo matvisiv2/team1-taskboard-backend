@@ -52,15 +52,13 @@ class AuthController {
 			return next(new AppError('Incorrect mail or password', 401));
 		}
 
-		const token = generateToken({
+		result.token = generateToken({
 			id: result.id,
 		});
 
 		return res.json({
 			status: 'success',
-			firstName: result.firstName,
-			lastName: result.lastName,
-			token,
+			result,
 		});
 	});
 
@@ -93,7 +91,7 @@ class AuthController {
 			return next(new AppError('User not found', 404));
 		}
 		const { password, ...userData } = user.dataValues;
-		return res.json(userData);
+		return res.status(200).json(userData);
 	});
 
 	// TODO: maybe need checkOwner and collaborator
