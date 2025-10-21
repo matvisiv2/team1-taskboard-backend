@@ -32,9 +32,17 @@ class AuthController {
 		delete result.password;
 		delete result.deletedAt;
 
+		// TODO: check if need to change token generating method
 		result.token = generateToken({
 			id: result.id,
 		});
+
+		// Like in previous my NodeJS project Archakov posts
+		// const token = jwt.sign(
+		// 	{ id: result.id },
+		// 	process.env.JWT_SECRET_KEY || 'secret123',
+		// 	{ expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+		// );
 
 		return res.json({ status: 'success', result });
 	});
@@ -52,9 +60,17 @@ class AuthController {
 			return next(new AppError('Incorrect mail or password', 401));
 		}
 
+		// This do indus
 		const token = generateToken({
 			id: result.id,
 		});
+
+		// Like in previous my NodeJS project Archakov posts
+		// const token = jwt.sign(
+		// 	{ id: result.id },
+		// 	process.env.JWT_SECRET_KEY || 'secret123',
+		// 	{ expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+		// );
 
 		return res.json({
 			status: 'success',
@@ -65,15 +81,21 @@ class AuthController {
 	});
 
 	authentication = catchAsync(async (req, res, next) => {
-		// 1. get the token from headers
-		let idToken = '';
-		if (
-			req.headers.authorization &&
-			req.headers.authorization.startsWith('Bearer')
-		) {
-			// Bearer ajsdfodfgpupg
-			idToken = req.headers.authorization.split(' ')[1];
-		}
+		// // 1. get the token from headers
+		// let idToken = '';
+		// if (
+		// 	req.headers.authorization &&
+		// 	req.headers.authorization.startsWith('Bearer')
+		// ) {
+		// 	// Bearer ajsdfodfgpupg
+		// 	idToken = req.headers.authorization.split(' ')[1];
+		// }
+		// // TODO: resolve issue with Bearer, and remove next if(){}
+		// if (!idToken) {
+		// 	idToken = req.headers.authorization.split(' ')[0];
+		// }
+		const idToken = (req.headers.authorization || '').replace(/Bearer\s/, '');
+
 		if (!idToken) {
 			return next(new AppError('Please login to get access', 401));
 		}
@@ -93,6 +115,15 @@ class AuthController {
 
 	// TODO: like authentication, but check if userId === userId of entity
 	// const redUserId = req.body.userId;
+
+	getMe = catchAsync(async (req, res) => {
+		const user = await tuser.findByPk(req.user.id);
+		if (!user) {
+			return next(new AppError('User not found', 404));
+		}
+		const { password, ...userData } = user.dataValues;
+		return res.json(userData);
+	});
 }
 
 module.exports = new AuthController();

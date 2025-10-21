@@ -40,9 +40,8 @@ class BoardController {
 		return res.status(200).json(boards);
 	});
 
-	getBoardsByUserWithStatistics = catchAsync(async (req, res, next) => {
-		console.log('---------------------------', req.userFresh, '---------------------------');
-		const userId = req.params.userId;
+	getBoardsWithStatistics = catchAsync(async (req, res, next) => {
+		const userId = req.user.id;
 		if (!userId) {
 			return next(new AppError('Need user id', 400));
 		}
@@ -66,7 +65,6 @@ class BoardController {
 		// 	`,
 		// 	[userId],
 		// );
-		console.log(boardWithStatistics);
 		return res.json(boardWithStatistics);
 	});
 
