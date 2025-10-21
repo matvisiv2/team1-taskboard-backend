@@ -79,29 +79,33 @@ class BoardController {
 	});
 
 	updateBoard = catchAsync(async (req, res, next) => {
-		const userId = req.user.id;
 		const id = req.params.id;
-		const title = req.body.title;
+		const userId = req.user.id;
 
-		const updatedBoard = (
-			await boardModel.update(
-				{ title },
-				{ where: { id, userId }, returning: true },
-			)
-		)[1][0];
-
-		if (!updatedBoard) {
-			return next(
-				new AppError(
-					'Board not found or you do not have permission to update this board',
-					404,
-				),
-			);
+		const result = await boardModel.findByPk(id);
+		if (!result) {
+			return next(new AppError('Invalid board id', 404));
 		}
+
+		// check if user is owner or collaborator
+		if (result.userId !== userId) {
+			const isCollaborator = await collaboratorModel.findOne({
+				where: { boardId: id, userId },
+			});
+			if (!isCollaborator) {
+				return next(
+					new AppError('You do not have permission to update this board', 403),
+				);
+			}
+		}
+
+		result.title = req.body.title;
+
+		const updatedResult = await result.save();
 
 		return res.status(200).json({
 			status: 'success',
-			result: updatedBoard.toJSON(),
+			result: updatedResult.toJSON(),
 		});
 	});
 
