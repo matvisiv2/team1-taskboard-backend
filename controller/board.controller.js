@@ -80,7 +80,8 @@ class BoardController {
 
 	updateBoard = catchAsync(async (req, res, next) => {
 		const userId = req.user.id;
-		const { id, title } = req.body;
+		const id = req.params.id;
+		const title = req.body.title;
 
 		const updatedBoard = (
 			await boardModel.update(
