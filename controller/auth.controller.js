@@ -28,10 +28,8 @@ class AuthController {
 		}
 
 		const result = newUser.toJSON();
-
 		delete result.password;
 		delete result.deletedAt;
-
 		result.token = generateToken({
 			id: result.id,
 		});
@@ -46,20 +44,20 @@ class AuthController {
 			return next(new AppError('Please provide email and password', 400));
 		}
 
-		const result = await userModel.findOne({ where: { email } });
+		const user = await userModel.findOne({ where: { email } });
 
-		if (!result || !(await bcrypt.compare(password, result.password))) {
+		if (!user || !(await bcrypt.compare(password, user.password))) {
 			return next(new AppError('Incorrect mail or password', 401));
 		}
 
+		const result = user.toJSON();
+		delete result.password;
+		delete result.deletedAt;
 		result.token = generateToken({
-			id: result.id,
+			id: user.id,
 		});
 
-		return res.json({
-			status: 'success',
-			result,
-		});
+		return res.json({ status: 'success', result });
 	});
 
 	authentication = catchAsync(async (req, res, next) => {
@@ -90,8 +88,8 @@ class AuthController {
 		if (!user) {
 			return next(new AppError('User not found', 404));
 		}
-		const { password, ...userData } = user.dataValues;
-		return res.status(200).json(userData);
+		const { password, ...result } = user.dataValues;
+		return res.status(200).json({ status: 'success', result });
 	});
 
 	// TODO: maybe need checkOwner and collaborator

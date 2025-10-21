@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 
 const sequelize = require('../../config/database');
 const AppError = require('../../utils/appError');
+const board = require('./board');
 
 const user = sequelize.define(
 	'user',
@@ -107,5 +108,10 @@ const user = sequelize.define(
 		modelName: 'user',
 	},
 );
+
+user.hasMany(board, { foreignKey: 'userId' });
+board.belongsTo(user, {
+	foreignKey: 'userId',
+});
 
 module.exports = user;

@@ -1,4 +1,5 @@
 const boardModel = require('../db/models/board');
+const userModel = require('../db/models/user');
 const collaboratorModel = require('../db/models/collaborator');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -46,7 +47,10 @@ class BoardController {
 		if (!userId) {
 			return next(new AppError('Need user id', 400));
 		}
-		const boardWithStatistics = await boardModel.findAll({ where: { userId } });
+		// const boardWithStatistics = await boardModel.findAll({ where: { userId } });
+		const boardWithStatistics = await boardModel.findAll({
+			include: userModel,
+		});
 		// const boards = await db.query(
 		// 	`
 		// 		SELECT
