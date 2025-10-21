@@ -8,12 +8,14 @@ module.exports = sequelize.define(
 	{
 		userId: {
 			type: Sequelize.INTEGER,
+			allowNull: false,
 			references: { model: 'tuser', key: 'id' },
 			onDelete: 'CASCADE',
 			primaryKey: true,
 		},
 		boardId: {
 			type: Sequelize.INTEGER,
+			allowNull: false,
 			references: { model: 'board', key: 'id' },
 			onDelete: 'CASCADE',
 			primaryKey: true,
@@ -28,7 +30,10 @@ module.exports = sequelize.define(
 			defaultValue: Sequelize.fn('NOW'),
 			allowNull: false,
 		},
-		deletedAt: { type: Sequelize.DATE },
+		deletedAt: {
+			type: Sequelize.DATE,
+			allowNull: true,
+		},
 	},
 	{
 		paranoid: true,

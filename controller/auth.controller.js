@@ -6,8 +6,8 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
 const generateToken = (payload) => {
-	return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-		expiresIn: process.env.JWT_EXPIRES_IN,
+	return jwt.sign(payload, process.env.JWT_SECRET_KEY || 'secret_key_jwt', {
+		expiresIn: process.env.JWT_EXPIRES_IN || '7d',
 	});
 };
 
@@ -32,17 +32,9 @@ class AuthController {
 		delete result.password;
 		delete result.deletedAt;
 
-		// TODO: check if need to change token generating method
 		result.token = generateToken({
 			id: result.id,
 		});
-
-		// Like in previous my NodeJS project Archakov posts
-		// const token = jwt.sign(
-		// 	{ id: result.id },
-		// 	process.env.JWT_SECRET_KEY || 'secret123',
-		// 	{ expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
-		// );
 
 		return res.json({ status: 'success', result });
 	});
@@ -60,17 +52,9 @@ class AuthController {
 			return next(new AppError('Incorrect mail or password', 401));
 		}
 
-		// This do indus
 		const token = generateToken({
 			id: result.id,
 		});
-
-		// Like in previous my NodeJS project Archakov posts
-		// const token = jwt.sign(
-		// 	{ id: result.id },
-		// 	process.env.JWT_SECRET_KEY || 'secret123',
-		// 	{ expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
-		// );
 
 		return res.json({
 			status: 'success',
@@ -102,7 +86,6 @@ class AuthController {
 	});
 
 	// TODO: like authentication, but check if userId === userId of entity
-	// const redUserId = req.body.userId;
 
 	getMe = catchAsync(async (req, res) => {
 		const user = await tuser.findByPk(req.user.id);
@@ -112,6 +95,24 @@ class AuthController {
 		const { password, ...userData } = user.dataValues;
 		return res.json(userData);
 	});
+
+	// TODO: maybe need checkOwner and collaborator
+	// checkBoardOwnerOrCollaborator = catchAsync(async (req, res, next) => {
+	// 	const userId = req.user.id;
+	// 	const boardId = req.params.id;
+
+	// 	const board = await boardModel.findByPk(boardId);
+	// 	if (!board) {
+	// 		return next(new AppError('Board not found', 404));
+	// 	}
+
+	// 	if (board.userId !== userId) {
+	// 		return next(new AppError('You do not have permission to access this board', 403));
+	// 	}
+
+	// 	req.board = board;
+	// 	return next();
+	// });
 }
 
 module.exports = new AuthController();
