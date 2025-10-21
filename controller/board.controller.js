@@ -17,29 +17,10 @@ class BoardController {
 			return next(new AppError('Failed to create new board', 400));
 		}
 
-		return res
-			.status(201)
-			.json({ status: 'success', result: newBoard.toJSON() });
-		// try {
-		// 	const { title, userId } = req.body;
-		// 	const newBoard = await db.query(
-		// 		'INSERT INTO boards (title, userId) values ($1, $2) RETURNING *',
-		// 		[title, userId],
-		// 	);
-		// 	res.status(201).json(newBoard.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	});
-
-	getBoardsByUser = catchAsync(async (req, res) => {
-		const userId = req.params.userId;
-		if (!userId) {
-			return next(new AppError('Need user id', 400));
-		}
-		const boards = await boardModel.findAll({ where: { userId } });
-		return res.status(200).json(boards);
+		return res.status(201).json({
+			status: 'success',
+			result: newBoard.toJSON(),
+		});
 	});
 
 	getBoardsWithStatistics = catchAsync(async (req, res, next) => {
@@ -47,9 +28,9 @@ class BoardController {
 		if (!userId) {
 			return next(new AppError('Need user id', 400));
 		}
-		// const boardWithStatistics = await boardModel.findAll({ where: { userId } });
 		const boardWithStatistics = await boardModel.findAll({
-			include: userModel,
+			where: { userId },
+			// include: userModel,
 		});
 		// const boards = await db.query(
 		// 	`
@@ -97,32 +78,52 @@ class BoardController {
 		return res.status(200).json(board);
 	});
 
-	async updateBoard (req, res) {
-		// try {
-		// 	const { id, title, userId } = req.body;
-		// 	const board = await db.query(
-		// 		'UPDATE boards SET title = $1 WHERE id = $2 RETURNING *',
-		// 		[title, id],
-		// 	);
-		// 	res.json(board.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	}
-	async removeBoard (req, res) {
-		// try {
-		// 	const id = req.params.id;
-		// 	const board = await db.query(
-		// 		'DELETE FROM boards WHERE id = $1 RETURNING *',
-		// 		[id],
-		// 	);
-		// 	res.json(board.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	}
+	updateBoard = catchAsync(async (req, res, next) => {
+		const userId = req.user.id;
+		const { id, title } = req.body;
+
+		const updatedBoard = (
+			await boardModel.update(
+				{ title },
+				{ where: { id, userId }, returning: true },
+			)
+		)[1][0];
+
+		if (!updatedBoard) {
+			return next(
+				new AppError(
+					'Board not found or you do not have permission to update this board',
+					404,
+				),
+			);
+		}
+
+		return res.status(200).json({
+			status: 'success',
+			result: updatedBoard.toJSON(),
+		});
+	});
+
+	removeBoard = catchAsync(async (req, res, next) => {
+		const id = req.params.id;
+		const userId = req.user.id;
+
+		const deletedBoard = await boardModel.destroy({ where: { id, userId } });
+
+		if (!deletedBoard) {
+			return next(
+				new AppError(
+					'Board not found or you do not have permission to delete this board',
+					403,
+				),
+			);
+		}
+
+		return res.status(204).json({
+			status: 'success',
+			result: deletedBoard,
+		});
+	});
 }
 
 module.exports = new BoardController();

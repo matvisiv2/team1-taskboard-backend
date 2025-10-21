@@ -63,7 +63,6 @@ class AuthController {
 	authentication = catchAsync(async (req, res, next) => {
 		// 1. get the token from headers
 		const idToken = (req.headers.authorization || '').replace(/Bearer\s/, '');
-
 		if (!idToken) {
 			return next(new AppError('Please login to get access', 401));
 		}
