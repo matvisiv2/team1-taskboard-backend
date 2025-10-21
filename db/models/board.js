@@ -2,6 +2,8 @@
 const { Sequelize, DataTypes } = require('sequelize');
 
 const sequelize = require('./../../config/database');
+const column = require('./column');
+const label = require('./column');
 
 const board = sequelize.define(
 	'board',
@@ -43,5 +45,15 @@ const board = sequelize.define(
 		modelName: 'board',
 	},
 );
+
+board.hasMany(column, { foreignKey: 'boardId' });
+column.belongsTo(board, {
+	foreignKey: 'boardId',
+});
+
+board.hasMany(label, { foreignKey: 'boardId' });
+label.belongsTo(board, {
+	foreignKey: 'boardId',
+});
 
 module.exports = board;

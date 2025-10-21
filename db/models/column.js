@@ -2,6 +2,7 @@
 const { Sequelize } = require('sequelize');
 
 const sequelize = require('./../../config/database');
+const task = require('./task');
 
 const column = sequelize.define(
 	'column',
@@ -34,5 +35,10 @@ const column = sequelize.define(
 		modelName: 'column',
 	},
 );
+
+column.hasMany(task, { foreignKey: 'columnId' });
+task.belongsTo(column, {
+	foreignKey: 'columnId',
+});
 
 module.exports = column;
