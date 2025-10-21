@@ -21,6 +21,15 @@ npx sequelize-cli db:migrate:undo
 npx sequelize-cli db:migrate:undo:all
 
 # test data
-npx sequelize-cli seed:generate --name demo-data
+# seeders
+npx sequelize-cli seed:generate --name user-admin
+npx sequelize-cli seed:generate --name board 
+npx sequelize-cli seed:generate --name collaborator 
+npx sequelize-cli seed:generate --name column
+npx sequelize-cli seed:generate --name task
+npx sequelize-cli seed:generate --name comment
+npx sequelize-cli seed:generate --name label
+npx sequelize-cli seed:generate --name tasklabel
 
-
+# create seeds
+npx sequelize-cli db:seed:all

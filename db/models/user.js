@@ -81,7 +81,7 @@ const user = sequelize.define(
 					throw new AppError('Password length must be grater than 7', 400);
 				}
 				if (value === this.password) {
-					const hashPassword = bcrypt.hashSync(value, 10);
+					const hashPassword = bcrypt.hashSync(value, process.env.BCRYPT_ROUND || 10);
 					this.setDataValue('password', hashPassword);
 				} else {
 					throw new AppError('Password and comfirm password must be same', 400);
