@@ -70,12 +70,10 @@ class ColumnController {
 		}
 		const columns = await Column.findAll({
 			where: { boardId },
+			include: ['tasks'],
 		});
 
-		return res.status(200).json({
-			status: 'success',
-			result: columns,
-		});
+		return res.status(200).json(columns);
 		// try {
 		// 	const boardId = req.params.boardId;
 		// 	// TODO: check SQL request
@@ -136,7 +134,7 @@ class ColumnController {
 		// 	res.status(500).json({ error: 'Database error' });
 		// }
 	}
-	async removeColumn (req, res) {
+	async deleteColumn (req, res) {
 		// try {
 		// 	const id = req.params.id;
 		// 	const column = await db.query(

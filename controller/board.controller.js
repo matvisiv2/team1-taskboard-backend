@@ -28,7 +28,7 @@ class BoardController {
 		}
 		const boardWithStatistics = await Board.findAll({
 			where: { userId },
-			// include: userModel,
+			include: ['columns'],
 		});
 		// const boards = await db.query(
 		// 	`
@@ -80,13 +80,13 @@ class BoardController {
 		const id = req.params.id;
 		const userId = req.user.id;
 
-		const result = await Board.findByPk(id);
-		if (!result) {
+		const board = await Board.findByPk(id);
+		if (!board) {
 			return next(new AppError('Invalid board id', 404));
 		}
 
 		// check if user is owner or collaborator
-		if (result.userId !== userId) {
+		if (board.userId !== userId) {
 			const isCollaborator = await Collaborator.findOne({
 				where: { boardId: id, userId },
 			});
@@ -97,9 +97,9 @@ class BoardController {
 			}
 		}
 
-		result.title = req.body.title;
+		board.title = req.body.title;
 
-		const updatedResult = await result.save();
+		const updatedResult = await board.save();
 
 		return res.status(200).json({
 			status: 'success',
@@ -107,7 +107,7 @@ class BoardController {
 		});
 	});
 
-	removeBoard = catchAsync(async (req, res, next) => {
+	deleteBoard = catchAsync(async (req, res, next) => {
 		const id = req.params.id;
 		const userId = req.user.id;
 

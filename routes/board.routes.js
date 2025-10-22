@@ -7,6 +7,6 @@ router.post('/board', authController.authentication, boardController.createBoard
 router.get('/boards-with-statistics', authController.authentication, boardController.getBoardsWithStatistics);
 router.get('/board/:id', authController.authentication, boardController.getBoardById);
 router.put('/board/:id', authController.authentication, boardController.updateBoard);
-router.delete('/board/:id', authController.authentication, boardController.removeBoard);
+router.delete('/board/:id', authController.authentication, boardController.deleteBoard);
 
 module.exports = router;

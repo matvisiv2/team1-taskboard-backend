@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
 		'task',
 		{
 			id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-			title: { type: Sequelize.STRING, allowNull: false },
-			content: { type: Sequelize.STRING },
+			title: { type: Sequelize.STRING, allowNull: false,  defaultValue: '', },
+			content: { type: Sequelize.STRING, defaultValue: '', },
 			done: {
 				type: Sequelize.BOOLEAN,
 				allowNull: false,

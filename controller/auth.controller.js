@@ -44,7 +44,7 @@ class AuthController {
 			return next(new AppError('Please provide email and password', 400));
 		}
 
-		const user = await user.findOne({ where: { email } });
+		const user = await User.findOne({ where: { email } });
 
 		if (!user || !(await bcrypt.compare(password, user.password))) {
 			return next(new AppError('Incorrect mail or password', 401));
@@ -69,7 +69,7 @@ class AuthController {
 
 		// 2. token verification
 		const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
-		console.log(User);
+
 		// 3. get the user detail from db and add to req object
 		const freshUser = await User.findByPk(tokenDetail.id);
 		if (!freshUser) {
@@ -83,7 +83,7 @@ class AuthController {
 	// TODO: like authentication, but check if userId === userId of entity
 
 	getMe = catchAsync(async (req, res) => {
-		const user = await user.findByPk(req.user.id);
+		const user = await User.findByPk(req.user.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
 		}

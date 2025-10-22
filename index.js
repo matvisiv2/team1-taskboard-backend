@@ -10,6 +10,7 @@ const authRouter = require('./routes/auth.routes');
 const userRouter = require('./routes/user.routes');
 const boardRouter = require('./routes/board.routes');
 const columnRouter = require('./routes/column.routes');
+const taskRouter = require('./routes/task.routes');
 const catchAsync = require('./utils/catchAsync');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/error.controller');
@@ -26,6 +27,7 @@ app.use('/api', authRouter);
 app.use('/api', userRouter);
 app.use('/api', boardRouter);
 app.use('/api', columnRouter);
+app.use('/api', taskRouter);
 
 // untracked routes
 app.use(
