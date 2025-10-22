@@ -1,12 +1,13 @@
 const Router = require('express');
 const router = new Router();
-const columnController = require('../controller/column.controller');
+const AuthController = require('../controller/auth.controller');
+const ColumnController = require('../controller/column.controller');
 
-router.post('/column', columnController.createColumn);
-router.get('/columns/:boardId', columnController.getColumnsByBoard);
-router.get('/columns-with-tasks/:boardId', columnController.getColumnsByBoardWithTasks);
-router.get('/column/:id', columnController.getColumnById);
-router.put('/column', columnController.updateColumn);
-router.delete('/column/:id', columnController.removeColumn);
+router.post('/column', AuthController.authentication, ColumnController.createColumn);
+router.get('/columns/:boardId', ColumnController.getColumnsByBoard);
+router.get('/columns-with-tasks/:boardId', AuthController.authentication, ColumnController.getColumnsByBoardWithTasks);
+router.get('/column/:id', ColumnController.getColumnById);
+router.put('/column', ColumnController.updateColumn);
+router.delete('/column/:id', ColumnController.removeColumn);
 
 module.exports = router;

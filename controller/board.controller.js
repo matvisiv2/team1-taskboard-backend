@@ -1,14 +1,12 @@
-const boardModel = require('../db/models/board');
-const userModel = require('../db/models/user');
-const collaboratorModel = require('../db/models/collaborator');
-const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const { board: Board, collaborator: Collaborator } = require('../db/models');
 
 class BoardController {
 	createBoard = catchAsync(async (req, res, next) => {
 		const body = req.body;
 
-		const newBoard = await boardModel.create({
+		const newBoard = await Board.create({
 			title: body.title,
 			userId: req.user.id,
 		});
@@ -28,7 +26,7 @@ class BoardController {
 		if (!userId) {
 			return next(new AppError('Need user id', 400));
 		}
-		const boardWithStatistics = await boardModel.findAll({
+		const boardWithStatistics = await Board.findAll({
 			where: { userId },
 			// include: userModel,
 		});
@@ -58,14 +56,14 @@ class BoardController {
 		const userId = req.user.id;
 		const boardId = req.params.id;
 
-		const board = await boardModel.findByPk(boardId);
+		const board = await Board.findByPk(boardId);
 		if (!board) {
 			return next(new AppError('Board not found', 404));
 		}
 
 		// check if user is owner or collaborator
 		if (board.userId !== userId) {
-			const collaborator = await collaboratorModel.findOne({
+			const collaborator = await Collaborator.findOne({
 				where: { boardId, userId },
 			});
 			if (!collaborator) {
@@ -82,14 +80,14 @@ class BoardController {
 		const id = req.params.id;
 		const userId = req.user.id;
 
-		const result = await boardModel.findByPk(id);
+		const result = await Board.findByPk(id);
 		if (!result) {
 			return next(new AppError('Invalid board id', 404));
 		}
 
 		// check if user is owner or collaborator
 		if (result.userId !== userId) {
-			const isCollaborator = await collaboratorModel.findOne({
+			const isCollaborator = await Collaborator.findOne({
 				where: { boardId: id, userId },
 			});
 			if (!isCollaborator) {
@@ -113,7 +111,7 @@ class BoardController {
 		const id = req.params.id;
 		const userId = req.user.id;
 
-		const deletedBoard = await boardModel.destroy({ where: { id, userId } });
+		const deletedBoard = await Board.destroy({ where: { id, userId } });
 
 		if (!deletedBoard) {
 			return next(

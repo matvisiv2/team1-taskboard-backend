@@ -1,116 +1,126 @@
-const { Sequelize, DataTypes } = require('sequelize');
 const bcrypt = require('bcrypt');
 
-const sequelize = require('../../config/database');
 const AppError = require('../../utils/appError');
-const board = require('./board');
+const { Sequelize } = require('sequelize');
 
-const user = sequelize.define(
-	'user',
-	{
-		id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-		userType: {
-			type: DataTypes.ENUM('0', '1', '2'),
-			allowNull: false,
-			validate: {
-				notNull: {
-					msg: 'userType cannot be null',
-				},
-				notEmpty: {
-					msg: 'userType cannot be empty',
-				},
-			},
-		},
-		firstName: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			validate: {
-				notNull: {
-					msg: 'firstName cannot be null',
-				},
-				notEmpty: {
-					msg: 'firstName cannot be empty',
+module.exports = (sequelize, DataTypes) => {
+	const user = sequelize.define(
+		'user',
+		{
+			id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+			userType: {
+				type: DataTypes.ENUM('0', '1', '2'),
+				allowNull: false,
+				validate: {
+					notNull: {
+						msg: 'userType cannot be null',
+					},
+					notEmpty: {
+						msg: 'userType cannot be empty',
+					},
 				},
 			},
-		},
-		lastName: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			validate: {
-				notNull: {
-					msg: 'lastName cannot be null',
-				},
-				notEmpty: {
-					msg: 'lastName cannot be empty',
-				},
-			},
-		},
-		email: {
-			type: DataTypes.STRING,
-			unique: true,
-			allowNull: false,
-			validate: {
-				notNull: {
-					msg: 'email cannot be null',
-				},
-				notEmpty: {
-					msg: 'email cannot be empty',
-				},
-				isEmail: {
-					msg: 'Invalid E-mail id',
+			firstName: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				validate: {
+					notNull: {
+						msg: 'firstName cannot be null',
+					},
+					notEmpty: {
+						msg: 'firstName cannot be empty',
+					},
 				},
 			},
-		},
-		password: {
-			type: DataTypes.TEXT,
-			allowNull: false,
-			validate: {
-				notNull: {
-					msg: 'password cannot be null',
-				},
-				notEmpty: {
-					msg: 'password cannot be empty',
+			lastName: {
+				type: DataTypes.STRING,
+				allowNull: false,
+				validate: {
+					notNull: {
+						msg: 'lastName cannot be null',
+					},
+					notEmpty: {
+						msg: 'lastName cannot be empty',
+					},
 				},
 			},
-		},
-		confirmPassword: {
-			type: DataTypes.VIRTUAL,
-			set (value) {
-				if (this.password.length < 7) {
-					throw new AppError('Password length must be grater than 7', 400);
-				}
-				if (value === this.password) {
-					const hashPassword = bcrypt.hashSync(value, process.env.BCRYPT_ROUND || 10);
-					this.setDataValue('password', hashPassword);
-				} else {
-					throw new AppError('Password and comfirm password must be same', 400);
-				}
+			email: {
+				type: DataTypes.STRING,
+				unique: true,
+				allowNull: false,
+				validate: {
+					notNull: {
+						msg: 'email cannot be null',
+					},
+					notEmpty: {
+						msg: 'email cannot be empty',
+					},
+					isEmail: {
+						msg: 'Invalid E-mail id',
+					},
+				},
 			},
+			password: {
+				type: DataTypes.TEXT,
+				allowNull: false,
+				validate: {
+					notNull: {
+						msg: 'password cannot be null',
+					},
+					notEmpty: {
+						msg: 'password cannot be empty',
+					},
+				},
+			},
+			confirmPassword: {
+				type: DataTypes.VIRTUAL,
+				set (value) {
+					if (this.password.length < 7) {
+						throw new AppError('Password length must be grater than 7', 400);
+					}
+					if (value === this.password) {
+						const hashPassword = bcrypt.hashSync(
+							value,
+							process.env.BCRYPT_ROUND || 10,
+						);
+						this.setDataValue('password', hashPassword);
+					} else {
+						throw new AppError(
+							'Password and comfirm password must be same',
+							400,
+						);
+					}
+				},
+			},
+			createdAt: {
+				type: DataTypes.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+				allowNull: false,
+			},
+			updatedAt: {
+				type: DataTypes.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+				allowNull: false,
+			},
+			deletedAt: { type: DataTypes.DATE },
 		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: Sequelize.fn('NOW'),
-			allowNull: false,
+		{
+			paranoid: true,
+			freezeTableName: true,
+			tableName: 'user',
+			timestamps: true,
+			modelName: 'user',
 		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: Sequelize.fn('NOW'),
-			allowNull: false,
-		},
-		deletedAt: { type: DataTypes.DATE },
-	},
-	{
-		paranoid: true,
-		freezeTableName: true,
-		tableName: 'user',
-		timestamps: true,
-		modelName: 'user',
-	},
-);
+	);
 
-user.hasMany(board, { foreignKey: 'userId' });
-board.belongsTo(user, {
-	foreignKey: 'userId',
-});
+	user.associate = (models) => {
+		user.hasMany(models.board, { foreignKey: 'userId' });
+		user.belongsToMany(models.board, {
+			through: models.collaborator,
+			foreignKey: 'userId',
+			otherKey: 'boardId',
+		});
+	};
 
-module.exports = user;
+	return user;
+};

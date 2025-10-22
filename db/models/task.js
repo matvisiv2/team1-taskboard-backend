@@ -1,54 +1,58 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize } = require("sequelize");
 
-const sequelize = require('../../config/database');
-const comment = require('./comment');
+module.exports = (sequelize, DataTypes) => {
+	const task = sequelize.define(
+		'task',
+		{
+			id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
+			title: { type: Sequelize.STRING, allowNull: false },
+			content: { type: Sequelize.STRING },
+			done: {
+				type: Sequelize.BOOLEAN,
+				allowNull: false,
+				defaultValue: false,
+			},
+			archived: {
+				type: Sequelize.BOOLEAN,
+				allowNull: false,
+				defaultValue: false,
+			},
+			columnId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				references: { model: 'column', key: 'id' },
+				onDelete: 'CASCADE',
+			},
+			createdAt: {
+				type: Sequelize.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+				allowNull: false,
+			},
+			updatedAt: {
+				type: Sequelize.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+				allowNull: false,
+			},
+			deletedAt: { type: Sequelize.DATE },
+		},
+		{
+			paranoid: true,
+			freezeTableName: true,
+			tableName: 'task',
+			timestamps: true,
+			modelName: 'task',
+		},
+	);
 
-const task = sequelize.define(
-	'task',
-	{
-		id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-		title: { type: Sequelize.STRING, allowNull: false },
-		content: { type: Sequelize.STRING },
-		done: {
-			type: Sequelize.BOOLEAN,
-			allowNull: false,
-			defaultValue: false,
-		},
-		archived: {
-			type: Sequelize.BOOLEAN,
-			allowNull: false,
-			defaultValue: false,
-		},
-		columnId: {
-			type: Sequelize.INTEGER,
-			allowNull: false,
-			references: { model: 'column', key: 'id' },
-			onDelete: 'CASCADE',
-		},
-		createdAt: {
-			type: Sequelize.DATE,
-			defaultValue: Sequelize.fn('NOW'),
-			allowNull: false,
-		},
-		updatedAt: {
-			type: Sequelize.DATE,
-			defaultValue: Sequelize.fn('NOW'),
-			allowNull: false,
-		},
-		deletedAt: { type: Sequelize.DATE },
-	},
-	{
-		paranoid: true,
-		freezeTableName: true,
-		tableName: 'task',
-		timestamps: true,
-		modelName: 'task',
-	},
-);
+	task.associate = (models) => {
+		task.belongsTo(models.column, { foreignKey: 'columnId' });
+		task.hasMany(models.comment, { foreignKey: 'taskId' });
+		task.belongsToMany(models.label, {
+			through: models.tasklabel,
+			foreignKey: 'taskId',
+			otherKey: 'labelId',
+		});
+	};
 
-task.hasMany(comment, { foreignKey: 'taskId' });
-comment.belongsTo(task, {
-	foreignKey: 'taskId',
-});
-
-module.exports = task;
+	return task;
+};
