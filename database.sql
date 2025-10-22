@@ -3,36 +3,36 @@
 -- ============================
 
 -- 🧑 user
-CREATE TABLE tuser (
+CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
-    userType ENUM ('0', '1', '2') NOT NULL,
+    userType SMALLINT NOT NULL CHECK (userType IN (0, 1, 2)),
     firstName VARCHAR(255) NOT NULL,
     lastName VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     passwordHash TEXT NOT NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 📋 board
 CREATE TABLE board (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
-    userId INTEGER NOT NULL REFERENCES tuser (id) ON DELETE CASCADE,
+    userId INTEGER NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 🧑🧑 collaborator
 CREATE TABLE collaborator (
-    userId INTEGER NOT NULL REFERENCES tuser (id) ON DELETE CASCADE,
+    userId INTEGER NOT NULL REFERENCES "user" (id) ON DELETE CASCADE,
     boardId INTEGER REFERENCES board (id) ON DELETE CASCADE,
     PRIMARY KEY (userId, boardId),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 📊 column
@@ -42,7 +42,7 @@ CREATE TABLE column (
     boardId INTEGER NOT NULL REFERENCES board (id) ON DELETE CASCADE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 📝 task
@@ -55,7 +55,7 @@ CREATE TABLE task (
     columnId INTEGER NOT NULL REFERENCES column (id) ON DELETE CASCADE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 💬 comment
@@ -65,7 +65,7 @@ CREATE TABLE comment (
     taskId INTEGER NOT NULL REFERENCES task (id) ON DELETE CASCADE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 🏷️ label
@@ -76,7 +76,7 @@ CREATE TABLE label (
     boardId INTEGER NOT NULL REFERENCES board (id) ON DELETE CASCADE,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- 🔗 tasklabel (many-to-many)
@@ -86,7 +86,7 @@ CREATE TABLE tasklabel (
     PRIMARY KEY (taskId, labelId),
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    deletedAt TIMESTAMP
 );
 
 -- ============================
@@ -117,7 +117,7 @@ $$ LANGUAGE plpgsql;
 
 -- Triggers for all tables where updatedAt is present
 CREATE TRIGGER trgUserUpdatedAt
-BEFORE UPDATE ON tuser
+BEFORE UPDATE ON "user"
 FOR EACH ROW EXECUTE FUNCTION setUpdatedAt();
 
 CREATE TRIGGER trgBoardUpdatedAt
