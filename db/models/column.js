@@ -4,13 +4,28 @@ module.exports = (sequelize, DataTypes) => {
 	const column = sequelize.define(
 		'column',
 		{
-			id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-			title: { type: Sequelize.STRING, allowNull: false },
+			id: {
+				type: DataTypes.INTEGER,
+				autoIncrement: true,
+				primaryKey: true,
+			},
+			title: {
+				type: DataTypes.STRING,
+				allowNull: false,
+			},
 			boardId: {
-				type: Sequelize.INTEGER,
+				type: DataTypes.INTEGER,
 				allowNull: false,
 				references: { model: 'board', key: 'id' },
 				onDelete: 'CASCADE',
+			},
+			orderIndex: {
+				type: DataTypes.FLOAT,
+				allowNull: true,
+			},
+			reorderCount: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
 			},
 			tasksCount: {
 				type: DataTypes.VIRTUAL,
@@ -28,7 +43,9 @@ module.exports = (sequelize, DataTypes) => {
 				defaultValue: Sequelize.fn('NOW'),
 				allowNull: false,
 			},
-			deletedAt: { type: Sequelize.DATE },
+			deletedAt: {
+				type: Sequelize.DATE,
+			},
 		},
 		{
 			paranoid: true,
@@ -36,6 +53,53 @@ module.exports = (sequelize, DataTypes) => {
 			tableName: 'column',
 			timestamps: true,
 			modelName: 'column',
+			indexes: [
+				{
+					unique: true,
+					fields: ['boardId', 'orderIndex'],
+				},
+			],
+			hooks: {
+				// auto calc orderIndex
+				async beforeCreate (column, options) {
+					if (column.orderIndex == null) {
+						const lastColumn = await sequelize.models.column.findOne({
+							where: { boardId: column.boardId },
+							order: [['orderIndex', 'DESC']],
+						});
+						column.orderIndex = lastColumn ? lastColumn.orderIndex + 1 : 1;
+					}
+				},
+				// reorder normalization
+				async afterUpdate (column, options) {
+					// if orderIndex changed — maybe, reorder
+					if (column.changed('orderIndex')) {
+						const board = await sequelize.models.board.findByPk(column.boardId);
+
+						// TODO: increase number of reorder count limit
+						// if reorderCount more than 4 — normalize
+						if (board && board.reorderCount >= 4) {
+							const columns = await sequelize.models.column.findAll({
+								where: { boardId: column.boardId },
+								order: [['orderIndex', 'ASC']],
+							});
+
+							// normalize orderIndex
+							for (let i = 0; i < columns.length; i++) {
+								await columns[i].update(
+									{ orderIndex: i + 1 },
+									{ hooks: false },
+								);
+							}
+
+							await board.update({ reorderCount: 0 }); // reset reorderCount
+							console.log(
+								`Columns orderIndex normalized for board ${board.id}`,
+							);
+						}
+					}
+				},
+			},
 		},
 	);
 

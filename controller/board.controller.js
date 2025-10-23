@@ -1,6 +1,10 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { board: Board, collaborator: Collaborator } = require('../db/models');
+const {
+	board: Board,
+	collaborator: Collaborator,
+	column: Column,
+} = require('../db/models');
 
 class BoardController {
 	createBoard = catchAsync(async (req, res, next) => {
@@ -30,6 +34,7 @@ class BoardController {
 		const boardWithStatistics = await Board.findAll({
 			where: { userId },
 			include: ['columns'],
+			order: [[{ model: Column, as: 'columns' }, 'orderIndex', 'ASC']],
 		});
 
 		return res.status(200).json(boardWithStatistics);

@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.STRING,
 				allowNull: false,
 			},
+			reorderCount: {
+				type: DataTypes.INTEGER,
+				defaultValue: 0,
+			},
 			userId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,

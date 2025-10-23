@@ -1,17 +1,18 @@
 const catchAsync = require('../utils/catchAsync');
+const { user: User } = require('../db/models');
 
 class UserController {
 	createUser = catchAsync(async (req, res, next) => {
-		// 	const { email, firstName, lastName } = req.body;
-		// 	const newUser = await db.query(
-		// 		'INSERT INTO users (email, first_name, last_name) values ($1, $2, $3) RETURNING *',
-		// 		[email, firstName, lastName],
-		// 	);
+		const newUser = await User.create(req.body);
+		if (!newUser) {
+			return next(new AppError('Failed to create user', 500));
+		}
+		return res.status(201).json(newUser);
 	});
 
 	getUsers = catchAsync(async (req, res, next) => {
-		// 	const users = await db.query('SELECT * FROM users');
-		// 	res.json(users.rows);
+		const users = await User.findAll();
+		return res.status(200).json(users);
 	});
 
 	getOneUser = catchAsync(async (req, res, next) => {

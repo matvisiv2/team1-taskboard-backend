@@ -1,6 +1,6 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { column: Column, board: Board } = require('../db/models');
+const { board: Board, column: Column, task: Task } = require('../db/models');
 const { where } = require('sequelize');
 
 class ColumnController {
@@ -61,6 +61,10 @@ class ColumnController {
 		const columns = await Column.findAll({
 			where: { boardId },
 			include: ['tasks'],
+			order: [
+				['orderIndex', 'ASC'],
+				[{ model: Task, as: 'tasks' }, 'orderIndex', 'ASC'],
+			],
 		});
 
 		return res.status(200).json(columns);
@@ -68,15 +72,18 @@ class ColumnController {
 
 	updateColumn = catchAsync(async (req, res, next) => {
 		const id = req.params.id;
-		const { title } = req.body;
+		const { title, orderIndex } = req.body;
 
 		const column = await Column.findByPk(id);
 		if (!column) {
 			return next(new AppError('Column not found', 404));
 		}
 
-		column.title = title || column.title;
+		column.set(req.body);
 		await column.save();
+		if (req.body.orderIndex) {
+			await Board.increment('reorderCount', { where: { id: column.boardId } });
+		}
 
 		return res.status(200).json({ status: 'success', result: column });
 	});

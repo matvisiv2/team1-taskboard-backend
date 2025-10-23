@@ -7,10 +7,15 @@ module.exports = (sequelize, DataTypes) => {
 	const user = sequelize.define(
 		'user',
 		{
-			id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+			id: {
+				type: DataTypes.INTEGER,
+				autoIncrement: true,
+				primaryKey: true,
+			},
 			userType: {
 				type: DataTypes.ENUM('0', '1', '2'),
 				allowNull: false,
+				defaultValue: '0',
 				validate: {
 					notNull: {
 						msg: 'userType cannot be null',
@@ -81,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
 					if (value === this.password) {
 						const hashPassword = bcrypt.hashSync(
 							value,
-							process.env.BCRYPT_ROUND || 10,
+							Number(process.env.BCRYPT_ROUND) || 10,
 						);
 						this.setDataValue('password', hashPassword);
 					} else {

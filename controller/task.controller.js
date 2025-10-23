@@ -1,6 +1,6 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { task: Task, board: Board } = require('../db/models');
+const { board: Board, column: Column, task: Task } = require('../db/models');
 
 class TaskController {
 	createTask = catchAsync(async (req, res, next) => {
@@ -54,38 +54,19 @@ class TaskController {
 
 	updateTask = catchAsync(async (req, res, next) => {
 		const id = req.params.id;
-		const userId = req.user.id;
-		const { boardId, ...body } = req.body;
-
-		// cheak if the user has access to the board
-		const board = await Board.findByPk(boardId);
-		if (!board) {
-			return next(new AppError('Board not found', 404));
-		}
-		if (board.userId != userId) {
-			const isCollaborator = await board.hasCollaborators(userId);
-			if (!isCollaborator) {
-				return next(
-					new AppError(
-						'You do not have permission to add task to this board',
-						403,
-					),
-				);
-			}
-		}
 
 		const task = await Task.findByPk(id);
 		if (!task) {
 			return next(new AppError('Invalid task id', 404));
 		}
 
-		task.set(body);
-		const newTask = await task.save();
+		task.set(req.body);
+		await task.save();
+		if (req.body.orderIndex) {
+			await Column.increment('reorderCount', { where: { id: task.columnId } });
+		}
 
-		return res.status(201).json({
-			status: 'success',
-			result: newTask,
-		});
+		return res.status(201).json({ status: 'success', result: task });
 	});
 
 	deleteTask = catchAsync(async (req, res, next) => {

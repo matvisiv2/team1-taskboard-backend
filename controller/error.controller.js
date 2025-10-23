@@ -71,7 +71,8 @@ const globalErrorHandler = (err, req, res, next) => {
 	}
 
 	if (err.name === 'SequelizeUniqueConstraintError') {
-		err = new AppError('E-mail already registerd', 400);
+		// err = new AppError('E-mail already registerd', 400);
+		err = new AppError('This value already exist', 400);
 	}
 
 	if (process.env.NODE_ENV === 'development') {

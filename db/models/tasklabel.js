@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
 	const tasklabel = sequelize.define(
@@ -16,8 +16,14 @@ module.exports = (sequelize, DataTypes) => {
 				onDelete: 'CASCADE',
 				primaryKey: true,
 			},
-			createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
-			updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn('NOW') },
+			createdAt: {
+				type: Sequelize.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+			},
+			updatedAt: {
+				type: Sequelize.DATE,
+				defaultValue: Sequelize.fn('NOW'),
+			},
 		},
 		{
 			paranoid: false,

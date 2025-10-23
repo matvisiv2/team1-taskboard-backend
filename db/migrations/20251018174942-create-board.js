@@ -11,6 +11,10 @@ module.exports = {
 				type: Sequelize.STRING,
 				allowNull: false,
 			},
+			reorderCount: {
+				type: Sequelize.INTEGER,
+				defaultValue: 0,
+			},
 			userId: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
