@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { column: Column, board: Board } = require('../db/models');
+const { where } = require('sequelize');
 
 class ColumnController {
 	createColumn = catchAsync(async (req, res, next) => {
@@ -36,20 +37,9 @@ class ColumnController {
 			status: 'success',
 			result: newColumn,
 		});
-		// try {
-		// 	const { title, boardId } = req.body;
-		// 	const newColumn = await db.query(
-		// 		'INSERT INTO columns (title, boardId) values ($1, $2) RETURNING *',
-		// 		[title, boardId],
-		// 	);
-		// 	res.status(201).json(newColumn.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
 	});
 
-	async getColumnsByBoard (req, res) {
+	getColumnsByBoard = catchAsync(async (req, res, next) => {
 		// try {
 		// 	const boardId = req.params.boardId;
 		// 	const columns = await db.query(
@@ -61,7 +51,7 @@ class ColumnController {
 		// 	console.log(err);
 		// 	res.status(500).json({ error: 'Database error' });
 		// }
-	}
+	});
 
 	getColumnsByBoardWithTasks = catchAsync(async (req, res, next) => {
 		const boardId = req.params.boardId;
@@ -74,79 +64,32 @@ class ColumnController {
 		});
 
 		return res.status(200).json(columns);
-		// try {
-		// 	const boardId = req.params.boardId;
-		// 	// TODO: check SQL request
-		// 	const columns = await db.query(
-		// 		`
-		// 			SELECT
-		// 				c.id AS id,
-		// 				c.title AS title,
-		// 				COALESCE(
-		// 					JSON_AGG(
-		// 					JSON_BUILD_OBJECT(
-		// 						'id', t.id,
-		// 						'title', t.title,
-		// 						'content', t.content,
-		// 						'created_at', t.created_at,
-		// 						'updated_at', t.updated_at
-		// 					)
-		// 					) FILTER (WHERE t.id IS NOT NULL),
-		// 					'[]'
-		// 				) AS tasks
-		// 			FROM columns c
-		// 			LEFT JOIN tasks t ON c.id = t.columnId
-		// 			WHERE c.boardId = $1
-		// 			GROUP BY c.id, c.title
-		// 			ORDER BY c.id;
-		// 		`,
-		// 		[boardId],
-		// 	);
-		// 	res.json(columns.rows);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
 	});
 
-	async getColumnById (req, res) {
-		// try {
-		// 	const id = req.params.id;
-		// 	const column = await db.query('SELECT * FROM columns WHERE id = $1', [
-		// 		id,
-		// 	]);
-		// 	res.json(column.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	}
-	async updateColumn (req, res) {
-		// try {
-		// 	const { id, title, boardId } = req.body;
-		// 	const column = await db.query(
-		// 		'UPDATE columns SET title = $1 WHERE id = $2 RETURNING *',
-		// 		[title, id],
-		// 	);
-		// 	res.json(column.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	}
-	async deleteColumn (req, res) {
-		// try {
-		// 	const id = req.params.id;
-		// 	const column = await db.query(
-		// 		'DELETE FROM columns WHERE id = $1 RETURNING *',
-		// 		[id],
-		// 	);
-		// 	res.json(column.rows[0]);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
-	}
+	updateColumn = catchAsync(async (req, res, next) => {
+		const id = req.params.id;
+		const { title } = req.body;
+
+		const column = await Column.findByPk(id);
+		if (!column) {
+			return next(new AppError('Column not found', 404));
+		}
+
+		column.title = title || column.title;
+		await column.save();
+
+		return res.status(200).json({ status: 'success', result: column });
+	});
+
+	deleteColumn = catchAsync(async (req, res, next) => {
+		const id = req.params.id;
+		const column = await Column.destroy({ where: { id } });
+		if (!column) {
+			return next(new AppError('Column not found', 404));
+		}
+
+		return res.status(204).json({ status: 'success', data: column });
+	});
 }
 
 module.exports = new ColumnController();

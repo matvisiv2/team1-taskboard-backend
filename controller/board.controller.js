@@ -26,29 +26,12 @@ class BoardController {
 		if (!userId) {
 			return next(new AppError('Need user id', 400));
 		}
+
 		const boardWithStatistics = await Board.findAll({
 			where: { userId },
 			include: ['columns'],
 		});
-		// const boards = await db.query(
-		// 	`
-		// 		SELECT
-		// 			b.id,
-		// 			b.title,
-		// 			b.userId,
-		// 			b.created_at,
-		// 			b.updated_at,
-		// 			COUNT(DISTINCT c.id) AS column_count,
-		// 			COUNT(t.id) AS task_count
-		// 		FROM boards b
-		// 		LEFT JOIN columns c ON b.id = c.boardId
-		// 		LEFT JOIN tasks t ON c.id = t.columnId
-		// 		WHERE b.userId = $1
-		// 		GROUP BY b.id, b.title, b.userId, b.created_at, b.updated_at
-		// 		ORDER BY b.id;
-		// 	`,
-		// 	[userId],
-		// );
+
 		return res.status(200).json(boardWithStatistics);
 	});
 
