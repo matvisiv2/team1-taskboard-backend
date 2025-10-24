@@ -9,7 +9,7 @@ module.exports = {
 
 		return queryInterface.bulkInsert('user', [
 			{
-				userType: process.env.USER_TYPE_ADMIN || '0',
+				userType: process.env.USER_TYPE_SUPERADMIN || '2',
 				firstName: 'John',
 				lastName: 'Doe',
 				email: process.env.USER_EMAIL_ADMIN || 'admin@gmail.com',
@@ -22,7 +22,7 @@ module.exports = {
 	down: (queryInterface, Sequelize) => {
 		return queryInterface.bulkDelete(
 			'user',
-			{ userType: process.env.USER_TYPE_ADMIN || '0' },
+			{ userType: process.env.USER_TYPE_SUPERADMIN || '2' },
 			{},
 		);
 	},

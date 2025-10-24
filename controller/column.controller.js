@@ -95,7 +95,7 @@ class ColumnController {
 			return next(new AppError('Column not found', 404));
 		}
 
-		return res.status(204).json({ status: 'success', data: column });
+		return res.status(204);
 	});
 }
 

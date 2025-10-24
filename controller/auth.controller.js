@@ -15,12 +15,8 @@ class AuthController {
 	signUp = catchAsync(async (req, res, next) => {
 		const body = req.body;
 		const newUser = await User.create({
-			userType: '0',
-			firstName: body.firstName,
-			lastName: body.lastName,
-			email: body.email,
-			password: body.password,
-			confirmPassword: body.confirmPassword,
+			...req.body,
+			userType: process.env.USER_TYPE_USER || '0',
 		});
 
 		if (!newUser) {
@@ -80,7 +76,20 @@ class AuthController {
 		return next();
 	});
 
-	// TODO: like authentication, but check if userId === userId of entity
+	checkAdminRights = catchAsync(async (req, res, next) => {
+		if (
+			![
+				process.env.USER_TYPE_ADMIN || '1',
+				process.env.USER_TYPE_SUPERADMIN || '2',
+			].includes(req.user.userType)
+		) {
+			return next(
+				new AppError('You do not have permission to perform this action', 403),
+			);
+		}
+
+		return next();
+	});
 
 	getMe = catchAsync(async (req, res) => {
 		const user = await User.findByPk(req.user.id);
@@ -90,6 +99,8 @@ class AuthController {
 		const { password, ...result } = user.dataValues;
 		return res.status(200).json({ status: 'success', result });
 	});
+
+	// TODO: like authentication, but check if userId === userId of entity
 
 	// TODO: maybe need checkOwner and collaborator
 	// checkBoardOwnerOrCollaborator = catchAsync(async (req, res, next) => {

@@ -86,12 +86,11 @@ class BoardController {
 		}
 
 		board.title = req.body.title;
-
-		const updatedResult = await board.save();
+		await board.save();
 
 		return res.status(200).json({
 			status: 'success',
-			result: updatedResult.toJSON(),
+			result: board.toJSON(),
 		});
 	});
 
@@ -110,10 +109,7 @@ class BoardController {
 			);
 		}
 
-		return res.status(204).json({
-			status: 'success',
-			result: deletedBoard,
-		});
+		return res.status(204);
 	});
 }
 

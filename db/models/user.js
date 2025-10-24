@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
 			confirmPassword: {
 				type: DataTypes.VIRTUAL,
 				set (value) {
-					if (this.password.length < 7) {
+					if (this.password.length < (process.env.PASSWORD_MIN_LENGTH || 7)) {
 						throw new AppError('Password length must be grater than 7', 400);
 					}
 					if (value === this.password) {
