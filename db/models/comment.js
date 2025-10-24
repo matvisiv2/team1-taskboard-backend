@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
 	const comment = sequelize.define(
@@ -6,6 +6,12 @@ module.exports = (sequelize, DataTypes) => {
 		{
 			id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
 			content: { type: Sequelize.STRING, allowNull: false },
+			userId: {
+				type: Sequelize.INTEGER,
+				allowNull: false,
+				references: { model: 'user', key: 'id' },
+				onDelete: 'CASCADE',
+			},
 			taskId: {
 				type: Sequelize.INTEGER,
 				allowNull: false,
@@ -34,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
 	);
 
 	comment.associate = (models) => {
+		comment.belongsTo(models.user, { foreignKey: 'userId' });
 		comment.belongsTo(models.task, { foreignKey: 'taskId' });
 	};
 

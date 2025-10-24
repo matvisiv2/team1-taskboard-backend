@@ -120,6 +120,7 @@ module.exports = (sequelize, DataTypes) => {
 
 	user.associate = (models) => {
 		user.hasMany(models.board, { foreignKey: 'userId' });
+		user.hasMany(models.comment, { foreignKey: 'userId' });
 		user.belongsToMany(models.board, {
 			through: models.collaborator,
 			foreignKey: 'userId',
