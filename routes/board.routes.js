@@ -9,22 +9,32 @@ router.post(
 	boardController.createBoard,
 );
 router.get(
-	'/boards',
-	authController.authentication,
-	authController.checkAdminRights,
-	boardController.getAllBoards,
-);
-router.get(
-	'/boards-with-statistics',
-	authController.authentication,
-	authController.checkEditBoardRights,
-	boardController.getBoardsWithStatistics,
-);
-router.get(
 	'/board/:id',
 	authController.authentication,
 	authController.checkEditBoardRights,
 	boardController.getBoardById,
+);
+router.get(
+	'/boards',
+	authController.authentication,
+	boardController.getBoards,
+);
+router.get(
+	'/boards-with-statistics',
+	authController.authentication,
+	boardController.getBoardsWithStatistics,
+);
+router.get(
+	'/boards-all',
+	authController.authentication,
+	authController.checkAdminRights,
+	boardController.getBoardsAll,
+);
+router.get(
+	'/boards-all-with-statistics',
+	authController.authentication,
+	authController.checkAdminRights,
+	boardController.getBoardsAllWithStatistics,
 );
 router.put(
 	'/board/:id',
