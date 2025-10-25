@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const { generateToken } = require('../utils/jwt');
+const { isAdmin } = require('../utils/userHelpers');
 const {
 	user: User,
 	board: Board,
@@ -12,23 +14,6 @@ const {
 	collaborator: Collaborator,
 	comment: Comment,
 } = require('./../db/models');
-
-const adminTypes = [
-	process.env.USER_TYPE_ADMIN || '1',
-	process.env.USER_TYPE_SUPERADMIN || '2',
-];
-
-const generateToken = (payload) => {
-	return jwt.sign(payload, process.env.JWT_SECRET_KEY || 'secret_key_jwt', {
-		expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-	});
-};
-
-const isAdmin = (user) => {
-	if (!user) return false;
-
-	return adminTypes.includes(String(user.userType));
-};
 
 class AuthController {
 	signUp = catchAsync(async (req, res, next) => {

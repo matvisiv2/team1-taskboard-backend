@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { user: User } = require('../db/models');
+const { isAdmin } = require('../utils/userHelpers');
 
 class UserController {
 	createUser = catchAsync(async (req, res, next) => {
@@ -33,12 +34,7 @@ class UserController {
 		const userData = req.body;
 
 		if (req.user.id != req.params.id) {
-			if (
-				![
-					process.env.USER_TYPE_ADMIN || '1',
-					process.env.USER_TYPE_SUPERADMIN || '2',
-				].includes(req.user.userType)
-			) {
+			if (!isAdmin(user)) {
 				return next(
 					new AppError('You do not have permission to update this user', 403),
 				);
@@ -98,13 +94,7 @@ class UserController {
 	});
 
 	deleteUser = catchAsync(async (req, res, next) => {
-		if (
-			req.user.id != req.params.id &&
-			![
-				process.env.USER_TYPE_ADMIN || '1',
-				process.env.USER_TYPE_SUPERADMIN || '2',
-			].includes(req.user.userType)
-		) {
+		if (req.user.id != req.params.id && !isAdmin(req.user)) {
 			return next(
 				new AppError('You do not have permission to delete this user', 403),
 			);
@@ -117,7 +107,7 @@ class UserController {
 
 		await user.destroy();
 
-		return res.status(204).json({ message: 'User successfully deleted'} );
+		return res.status(204).json({ message: 'User successfully deleted' });
 	});
 }
 
