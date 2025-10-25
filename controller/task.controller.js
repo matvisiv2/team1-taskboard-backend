@@ -4,30 +4,14 @@ const { board: Board, column: Column, task: Task } = require('../db/models');
 
 class TaskController {
 	createTask = catchAsync(async (req, res, next) => {
-		const userId = req.user.id;
-		const { boardId, columnId, title } = req.body;
-		if (!title || !columnId) {
-			return next(new AppError('Title and Task ID are required', 400));
+		if (!req.body.title) {
+			return next(new AppError('Title is required', 400));
 		}
 
-		// cheak if the user has access to the board
-		const board = await Board.findByPk(boardId);
-		if (!board) {
-			return next(new AppError('Board not found', 404));
-		}
-		if (board.userId != userId) {
-			const isCollaborator = await board.hasCollaborators(userId);
-			if (!isCollaborator) {
-				return next(
-					new AppError(
-						'You do not have permission to add task to this board',
-						403,
-					),
-				);
-			}
-		}
-
-		const newTask = await Task.create({ title, columnId });
+		const newTask = await Task.create({
+			...req.body,
+			columnId: req.params.columnId,
+		});
 
 		return res.status(201).json({
 			status: 'success',
@@ -35,13 +19,8 @@ class TaskController {
 		});
 	});
 
-	getTaskByIdWithLabelsAndComments = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-
-		const task = await Task.findByPk(id, {
-			include: ['labels', 'comments'],
-		});
-
+	getTaskById = catchAsync(async (req, res, next) => {
+		const task = await Task.findByPk(req.params.id);
 		if (!task) {
 			return next(new AppError('Task not found', 404));
 		}
@@ -49,13 +28,36 @@ class TaskController {
 		return res.status(200).json(task);
 	});
 
-	// getTaskByIdWithLabels = catchAsync(async (req, res, next) => {});
-	// getTasksByBoard = catchAsync(async (req, res, next) => {});
+	getTaskByIdWithLabelsAndComments = catchAsync(async (req, res, next) => {
+		const task = await Task.findByPk(req.params.id, {
+			include: ['labels', 'comments'],
+		});
+		if (!task) {
+			return next(new AppError('Task not found', 404));
+		}
+
+		return res.status(200).json(task);
+	});
+
+	getAllTasks = catchAsync(async (req, res, next) => {
+		const tasks = await Task.findAll();
+		return res.status(200).json(tasks);
+	});
+
+	getAllTasksByBoard = catchAsync(async (req, res, next) => {
+		const tasks = await Task.findAll({
+			include: [
+				{
+					model: Column,
+					where: { boardId: req.params.boardId },
+				},
+			],
+		});
+		return res.status(200).json(tasks);
+	});
 
 	updateTask = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-
-		const task = await Task.findByPk(id);
+		const task = await Task.findByPk(req.params.id);
 		if (!task) {
 			return next(new AppError('Invalid task id', 404));
 		}
