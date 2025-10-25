@@ -68,14 +68,14 @@ class BoardController {
 						'COUNT',
 						Sequelize.fn('DISTINCT', Sequelize.col('columns.id')),
 					),
-					'columnsCount',
+					'columnCount',
 				],
 				[
 					Sequelize.fn(
 						'COUNT',
 						Sequelize.fn('DISTINCT', Sequelize.col('columns->tasks.id')),
 					),
-					'tasksCount',
+					'taskCount',
 				],
 				[
 					Sequelize.fn(
@@ -85,7 +85,7 @@ class BoardController {
 							Sequelize.col('columns->tasks->comments.id'),
 						),
 					),
-					'commentsCount',
+					'commentCount',
 				],
 			],
 			include: [
@@ -132,14 +132,14 @@ class BoardController {
 						'COUNT',
 						Sequelize.fn('DISTINCT', Sequelize.col('columns.id')),
 					),
-					'columnsCount',
+					'columnCount',
 				],
 				[
 					Sequelize.fn(
 						'COUNT',
 						Sequelize.fn('DISTINCT', Sequelize.col('columns->tasks.id')),
 					),
-					'tasksCount',
+					'taskCount',
 				],
 				[
 					Sequelize.fn(
@@ -149,7 +149,7 @@ class BoardController {
 							Sequelize.col('columns->tasks->comments.id'),
 						),
 					),
-					'commentsCount',
+					'commentCount',
 				],
 			],
 			include: [
