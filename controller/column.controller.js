@@ -59,15 +59,8 @@ class ColumnController {
 	});
 
 	deleteColumn = catchAsync(async (req, res, next) => {
-		console.log('------deleteColumn');
-
-		const column = await Column.destroy({ where: { id: req.params.id } });
-		if (!column) {
-			return next(new AppError('Column not found', 404));
-		}
-		console.log('------before return res');
-
-		return res.status(204).json({ message: 'Column successfully deleted'} );
+		await Column.destroy({ where: { id: req.params.id } });
+		return res.status(204).json({ message: 'Column successfully deleted' });
 	});
 }
 

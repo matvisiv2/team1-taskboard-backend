@@ -80,12 +80,8 @@ class BoardController {
 	});
 
 	deleteBoard = catchAsync(async (req, res, next) => {
-		const deletedBoard = await Board.destroy({ where: { id: req.params.id } });
-		if (!deletedBoard) {
-			return next(new AppError('Board not found', 403));
-		}
-
-		return res.status(204).json({ message: 'Board successfully deleted'} );
+		await Board.destroy({ where: { id: req.params.id } });
+		return res.status(204).json({ message: 'Board successfully deleted' });
 	});
 }
 

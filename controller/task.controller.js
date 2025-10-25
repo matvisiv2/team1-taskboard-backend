@@ -70,15 +70,8 @@ class TaskController {
 	});
 
 	deleteTask = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-
-		const deletedTask = await Task.destroy({ where: { id } });
-
-		if (!deletedTask) {
-			return next(new AppError('Task not found', 404));
-		}
-
-		return res.status(204).json({ message: 'Task successfully deleted'} );
+		await Task.destroy({ where: { id: req.params.id } });
+		return res.status(204).json({ message: 'Task successfully deleted' });
 	});
 }
 
