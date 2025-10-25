@@ -90,51 +90,67 @@ class AuthController {
 		return next();
 	});
 
-	async canEditBoard (userType, userId, boardId) {
+	async canEditBoard (user, boardId) {
+		if (isAdmin(user)) return true;
+
 		const board = await Board.findByPk(boardId);
 		if (!board) throw new AppError('Board not found', 404);
 
-		if (isAdmin({ userType })) return true;
-		if (board.userId === userId) return true;
+		if (board.userId === user.id) return true;
 
 		const collaborator = await Collaborator.findOne({
-			where: { boardId, userId },
+			where: { boardId, userId: user.id },
 		});
 
 		return !!collaborator;
 	}
 
-	async canEditColumn (userType, userId, columnId) {
+	async canEditColumn (user, columnId) {
+		if (isAdmin(user)) return true;
+
 		const column = await Column.findByPk(columnId);
 		if (!column) throw new AppError('Column not found', 404);
 
-		return this.canEditBoard(userType, userId, column.boardId);
+		return this.canEditBoard(user, column.boardId);
 	}
 
-	async canEditLabels (userType, userId, labelId) {
+	async canEditLabels (user, labelId) {
+		if (isAdmin(user)) return true;
+
 		const label = await Label.findByPk(labelId);
 		if (!label) throw new AppError('Label not found', 404);
 
-		return this.canEditBoard(userType, userId, label.boardId);
+		return this.canEditBoard(user, label.boardId);
 	}
 
-	async canEditTask (userType, userId, taskId) {
+	async canEditTask (user, taskId) {
+		if (isAdmin(user)) return true;
+
 		const task = await Task.findByPk(taskId);
 		if (!task) throw new AppError('Task not found', 404);
 
 		const column = await Column.findByPk(task.columnId);
 		if (!column) throw new AppError('Column not found', 404);
 
-		return this.canEditBoard(userType, userId, column.boardId);
+		return this.canEditBoard(user, column.boardId);
 	}
+
+	checkEditUserRights = catchAsync(async (req, res, next) => {
+		if (isAdmin(req.user)) return true;
+
+		const userId = req.params.id ?? req.params.userId;
+		const hasRights = req.user.id == userId;
+
+		if (!hasRights) {
+			throw new AppError('You do not have permission to edit this user', 403);
+		}
+
+		return next();
+	});
 
 	checkEditBoardRights = catchAsync(async (req, res, next) => {
 		const boardId = req.params.id ?? req.params.boardId;
-		const hasRights = await this.canEditBoard(
-			req.user.userType,
-			req.user.id,
-			boardId,
-		);
+		const hasRights = await this.canEditBoard(req.user, boardId);
 
 		if (!hasRights) {
 			throw new AppError('You do not have permission to edit this board', 403);
@@ -144,15 +160,11 @@ class AuthController {
 	});
 
 	checkEditColumnRights = catchAsync(async (req, res, next) => {
-		const columnId = req.params.id;
+		const columnId = req.params.id ?? req.params.columnId;
 		const column = await Column.findByPk(columnId);
 		if (!column) throw new AppError('Column not found', 404);
 
-		const hasRights = await this.canEditBoard(
-			req.user.userType,
-			req.user.id,
-			column.boardId,
-		);
+		const hasRights = await this.canEditBoard(req.user, column.boardId);
 		if (!hasRights) {
 			throw new AppError('You do not have permission to edit this column', 403);
 		}
@@ -168,11 +180,7 @@ class AuthController {
 		const column = await Column.findByPk(task.columnId);
 		if (!column) throw new AppError('Column not found', 404);
 
-		const hasRights = await this.canEditBoard(
-			req.user.userType,
-			req.user.id,
-			column.boardId,
-		);
+		const hasRights = await this.canEditBoard(req.user, column.boardId);
 		if (!hasRights) {
 			throw new AppError('You do not have permission to edit this task', 403);
 		}
@@ -185,11 +193,7 @@ class AuthController {
 		const label = await Label.findByPk(labelId);
 		if (!label) throw new AppError('Label not found', 404);
 
-		const hasRights = await this.canEditBoard(
-			req.user.userType,
-			req.user.id,
-			label.boardId,
-		);
+		const hasRights = await this.canEditBoard(req.user, label.boardId);
 		if (!hasRights) {
 			throw new AppError('You do not have permission to edit this label', 403);
 		}
