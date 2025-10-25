@@ -62,8 +62,7 @@ class TaskController {
 			return next(new AppError('Invalid task id', 404));
 		}
 
-		task.set(req.body);
-		await task.save();
+		await task.update(req.body);
 		if (req.body.orderIndex) {
 			await Column.increment('reorderCount', { where: { id: task.columnId } });
 		}
