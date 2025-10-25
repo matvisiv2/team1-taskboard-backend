@@ -77,8 +77,11 @@ module.exports = (sequelize, DataTypes) => {
 						const board = await sequelize.models.board.findByPk(column.boardId);
 
 						// TODO: increase number of reorder count limit
-						// if reorderCount more than 4 — normalize
-						if (board && board.reorderCount >= 4) {
+						// if reorderCount more than N — normalize
+						if (
+							board &&
+							board.reorderCount >= (process.env.DB_BOARD_REORDER_COUNT || 10)
+						) {
 							const columns = await sequelize.models.column.findAll({
 								where: { boardId: column.boardId },
 								order: [['orderIndex', 'ASC']],

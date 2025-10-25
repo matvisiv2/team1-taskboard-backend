@@ -48,8 +48,7 @@ class ColumnController {
 			return next(new AppError('Column not found', 404));
 		}
 
-		column.set(req.body);
-		await column.save();
+		await column.update(req.body);
 		if (req.body.orderIndex) {
 			await Board.increment('reorderCount', { where: { id: column.boardId } });
 		}
