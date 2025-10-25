@@ -8,10 +8,8 @@ const {
 
 class BoardController {
 	createBoard = catchAsync(async (req, res, next) => {
-		const body = req.body;
-
 		const newBoard = await Board.create({
-			title: body.title,
+			...req.body,
 			userId: req.user.id,
 		});
 
@@ -35,13 +33,8 @@ class BoardController {
 	});
 
 	getBoardsWithStatistics = catchAsync(async (req, res, next) => {
-		const userId = req.user.id;
-		if (!userId) {
-			return next(new AppError('Need user id', 400));
-		}
-
 		const boardWithStatistics = await Board.findAll({
-			where: { userId },
+			where: { userId: req.user.id },
 			include: ['columns'],
 			order: [[{ model: Column, as: 'columns' }, 'orderIndex', 'ASC']],
 		});
@@ -50,10 +43,7 @@ class BoardController {
 	});
 
 	getBoardById = catchAsync(async (req, res, next) => {
-		const userId = req.user.id;
-		const boardId = req.params.id;
-
-		const board = await Board.findByPk(boardId);
+		const board = await Board.findByPk(req.params.id);
 		if (!board) {
 			return next(new AppError('Board not found', 404));
 		}
@@ -62,15 +52,12 @@ class BoardController {
 	});
 
 	updateBoard = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-		const userId = req.user.id;
-
-		const board = await Board.findByPk(id);
+		const board = await Board.findByPk(req.params.id);
 		if (!board) {
 			return next(new AppError('Invalid board id', 404));
 		}
 
-		board.title = req.body.title;
+		board.set(req.body);
 		await board.save();
 
 		return res.status(200).json({
