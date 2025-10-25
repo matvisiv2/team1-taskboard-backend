@@ -4,13 +4,8 @@ const { board: Board, label: Label, task: Task } = require('../db/models');
 
 class LabelController {
 	createLabel = catchAsync(async (req, res, next) => {
-		const title = req.body.title;
-		if (!title) {
-			return next(new AppError('Title is required', 400));
-		}
-
 		const newLabel = await Label.create({
-			title,
+			...req.body,
 			boardId: req.params.boardId,
 		});
 
@@ -21,7 +16,7 @@ class LabelController {
 	});
 
 	getLabelById = catchAsync(async (req, res, next) => {
-		const label = await Label.findByPk({ id: req.params.id });
+		const label = await Label.findByPk(req.params.id);
 		if (!label) {
 			return next(new AppError('Label not found', 404));
 		}

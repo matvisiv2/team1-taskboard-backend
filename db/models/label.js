@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Sequelize } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
 	const label = sequelize.define(
@@ -12,7 +12,21 @@ module.exports = (sequelize, DataTypes) => {
 				unique: true,
 			},
 			title: { type: Sequelize.STRING, allowNull: false },
-			color: { type: Sequelize.STRING(50), allowNull: false },
+			color: {
+				type: Sequelize.STRING(50),
+				allowNull: true,
+				validate: {
+					isHexColor (value) {
+						if (value === null || value === '') return;
+						const hexRegex = /^#([A-Fa-f0-9]{6})$/;
+						if (!hexRegex.test(value)) {
+							throw new Error(
+								'Color must be a valid hex color code (e.g. #ffffff)',
+							);
+						}
+					},
+				},
+			},
 			boardId: {
 				type: Sequelize.INTEGER,
 				references: { model: 'board', key: 'id' },

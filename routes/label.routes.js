@@ -12,7 +12,7 @@ router.post(
 router.get(
 	'/label/:id',
 	AuthController.authentication,
-	AuthController.checkEditBoardRights,
+	AuthController.checkEditLabelRights,
 	LabelController.getLabelById,
 );
 router.get(
