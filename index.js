@@ -6,11 +6,7 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const authRouter = require('./routes/auth.routes');
-const userRouter = require('./routes/user.routes');
-const boardRouter = require('./routes/board.routes');
-const columnRouter = require('./routes/column.routes');
-const taskRouter = require('./routes/task.routes');
+const routes = require('./routes');
 const catchAsync = require('./utils/catchAsync');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/error.controller');
@@ -23,11 +19,7 @@ app.use(cors());
 app.use(helmet()); // helmet is a security middleware that helps us protect our app by setting various HTTP headers
 app.use(morgan('dev')); // log the requests in console
 
-app.use('/api', authRouter);
-app.use('/api', userRouter);
-app.use('/api', boardRouter);
-app.use('/api', columnRouter);
-app.use('/api', taskRouter);
+Object.values(routes).forEach(router => app.use('/api', router));
 
 // untracked routes
 app.use(
