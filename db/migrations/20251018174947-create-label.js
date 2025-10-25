@@ -10,7 +10,7 @@ module.exports = {
 				unique: true,
 			},
 			title: { type: Sequelize.STRING, allowNull: false },
-			color: { type: Sequelize.STRING(50), allowNull: false },
+			color: { type: Sequelize.STRING(50), allowNull: true },
 			boardId: {
 				type: Sequelize.INTEGER,
 				references: { model: 'board', key: 'id' },
