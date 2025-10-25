@@ -19,21 +19,24 @@ router.get(
 	'/user/:id',
 	authController.authentication,
 	authController.checkAdminRights,
-	userController.getOneUser,
+	userController.getUserById,
 );
 router.put(
 	'/user/:id',
 	authController.authentication,
+	authController.checkEditUserRights,
 	userController.updateUser,
 );
 router.put(
 	'/user/:id/change-password',
 	authController.authentication,
+	authController.checkEditUserRights,
 	userController.changePassword,
 );
 router.delete(
 	'/user/:id',
 	authController.authentication,
+	authController.checkEditUserRights,
 	userController.deleteUser,
 );
 

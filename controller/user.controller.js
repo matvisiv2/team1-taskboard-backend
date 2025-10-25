@@ -22,7 +22,7 @@ class UserController {
 		return res.status(200).json(users);
 	});
 
-	getOneUser = catchAsync(async (req, res, next) => {
+	getUserById = catchAsync(async (req, res, next) => {
 		const user = await User.findByPk(req.params.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
@@ -63,15 +63,6 @@ class UserController {
 	// TODO: Implement change user email functionality
 
 	changePassword = catchAsync(async (req, res, next) => {
-		if (
-			req.user.id != req.params.id &&
-			req.user.userType != (process.env.USER_TYPE_SUPERADMIN || '2')
-		) {
-			return next(
-				new AppError('You do not have permission to change this password', 403),
-			);
-		}
-
 		const user = await User.findByPk(req.params.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
@@ -94,19 +85,7 @@ class UserController {
 	});
 
 	deleteUser = catchAsync(async (req, res, next) => {
-		if (req.user.id != req.params.id && !isAdmin(req.user)) {
-			return next(
-				new AppError('You do not have permission to delete this user', 403),
-			);
-		}
-
-		const user = await User.findByPk(req.params.id);
-		if (!user) {
-			return next(new AppError('User not found', 404));
-		}
-
-		await user.destroy();
-
+		await User.destroy({ where: { id: req.params.id } });
 		return res.status(204).json({ message: 'User successfully deleted' });
 	});
 }
