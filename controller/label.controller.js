@@ -36,8 +36,7 @@ class LabelController {
 			return next(new AppError('Label not found', 404));
 		}
 
-		label.set(req.body);
-		await label.save();
+		await label.update(req.body);
 
 		return res.status(200).json({ status: 'success', result: label });
 	});
