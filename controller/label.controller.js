@@ -1,7 +1,6 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { board: Board, label: Label, task: Task } = require('../db/models');
-const { where } = require('sequelize');
 
 class LabelController {
 	createLabel = catchAsync(async (req, res, next) => {

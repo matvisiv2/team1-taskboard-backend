@@ -1,7 +1,6 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { board: Board, column: Column, task: Task } = require('../db/models');
-const { where } = require('sequelize');
 
 class ColumnController {
 	createColumn = catchAsync(async (req, res, next) => {
