@@ -25,6 +25,15 @@ class BoardController {
 		});
 	});
 
+	getAllBoards = catchAsync(async (req, res, next) => {
+		const boards = await Board.findAll({
+			include: ['columns'],
+			order: [[{ model: Column, as: 'columns' }, 'orderIndex', 'ASC']],
+		});
+
+		return res.status(200).json(boards);
+	});
+
 	getBoardsWithStatistics = catchAsync(async (req, res, next) => {
 		const userId = req.user.id;
 		if (!userId) {
@@ -49,18 +58,6 @@ class BoardController {
 			return next(new AppError('Board not found', 404));
 		}
 
-		// check if user is owner or collaborator
-		if (board.userId !== userId) {
-			const collaborator = await Collaborator.findOne({
-				where: { boardId, userId },
-			});
-			if (!collaborator) {
-				return next(
-					new AppError('You do not have permission to access this board', 403),
-				);
-			}
-		}
-
 		return res.status(200).json(board);
 	});
 
@@ -73,18 +70,6 @@ class BoardController {
 			return next(new AppError('Invalid board id', 404));
 		}
 
-		// check if user is owner or collaborator
-		if (board.userId !== userId) {
-			const isCollaborator = await Collaborator.findOne({
-				where: { boardId: id, userId },
-			});
-			if (!isCollaborator) {
-				return next(
-					new AppError('You do not have permission to update this board', 403),
-				);
-			}
-		}
-
 		board.title = req.body.title;
 		await board.save();
 
@@ -95,21 +80,12 @@ class BoardController {
 	});
 
 	deleteBoard = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-		const userId = req.user.id;
-
-		const deletedBoard = await Board.destroy({ where: { id, userId } });
-
+		const deletedBoard = await Board.destroy({ where: { id: req.params.id } });
 		if (!deletedBoard) {
-			return next(
-				new AppError(
-					'Board not found or you do not have permission to delete this board',
-					403,
-				),
-			);
+			return next(new AppError('Board not found', 403));
 		}
 
-		return res.status(204);
+		return res.status(204).json({ message: 'Board successfully deleted'} );
 	});
 }
 

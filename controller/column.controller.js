@@ -5,32 +5,14 @@ const { where } = require('sequelize');
 
 class ColumnController {
 	createColumn = catchAsync(async (req, res, next) => {
-		const userId = req.user.id;
-		const { title, boardId } = req.body;
-		if (!title || !boardId) {
-			return next(new AppError('Title and Board ID are required', 400));
-		}
-
-		// cheak if the user has access to the board
-		const board = await Board.findByPk(boardId);
-		if (!board) {
-			return next(new AppError('Board not found', 404));
-		}
-		if (board.userId !== userId) {
-			const isCollaborator = await board.hasCollaborators(userId);
-			if (!isCollaborator) {
-				return next(
-					new AppError(
-						'You do not have permission to add column to this board',
-						403,
-					),
-				);
-			}
+		const title = req.body.title;
+		if (!title) {
+			return next(new AppError('Title is required', 400));
 		}
 
 		const newColumn = await Column.create({
 			title,
-			boardId,
+			boardId: req.params.boardId,
 		});
 
 		return res.status(201).json({
@@ -40,26 +22,17 @@ class ColumnController {
 	});
 
 	getColumnsByBoard = catchAsync(async (req, res, next) => {
-		// try {
-		// 	const boardId = req.params.boardId;
-		// 	const columns = await db.query(
-		// 		'SELECT * FROM columns WHERE boardId = $1',
-		// 		[boardId],
-		// 	);
-		// 	res.json(columns.rows);
-		// } catch (err) {
-		// 	console.log(err);
-		// 	res.status(500).json({ error: 'Database error' });
-		// }
+		const columns = await Column.findAll({
+			where: { boardId: req.params.boardId },
+			order: [['orderIndex', 'ASC']],
+		});
+
+		return res.status(200).json(columns);
 	});
 
 	getColumnsByBoardWithTasks = catchAsync(async (req, res, next) => {
-		const boardId = req.params.boardId;
-		if (!boardId) {
-			return next(new AppError('Board ID is required', 400));
-		}
 		const columns = await Column.findAll({
-			where: { boardId },
+			where: { boardId: req.params.boardId },
 			include: ['tasks'],
 			order: [
 				['orderIndex', 'ASC'],
@@ -71,10 +44,7 @@ class ColumnController {
 	});
 
 	updateColumn = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-		const { title, orderIndex } = req.body;
-
-		const column = await Column.findByPk(id);
+		const column = await Column.findByPk(req.params.id);
 		if (!column) {
 			return next(new AppError('Column not found', 404));
 		}
@@ -89,13 +59,15 @@ class ColumnController {
 	});
 
 	deleteColumn = catchAsync(async (req, res, next) => {
-		const id = req.params.id;
-		const column = await Column.destroy({ where: { id } });
+		console.log('------deleteColumn');
+
+		const column = await Column.destroy({ where: { id: req.params.id } });
 		if (!column) {
 			return next(new AppError('Column not found', 404));
 		}
+		console.log('------before return res');
 
-		return res.status(204);
+		return res.status(204).json({ message: 'Column successfully deleted'} );
 	});
 }
 

@@ -3,12 +3,31 @@ const bcrypt = require('bcrypt');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { user: User } = require('./../db/models');
+const {
+	user: User,
+	board: Board,
+	column: Column,
+	task: Task,
+	label: Label,
+	collaborator: Collaborator,
+	comment: Comment,
+} = require('./../db/models');
+
+const adminTypes = [
+	process.env.USER_TYPE_ADMIN || '1',
+	process.env.USER_TYPE_SUPERADMIN || '2',
+];
 
 const generateToken = (payload) => {
 	return jwt.sign(payload, process.env.JWT_SECRET_KEY || 'secret_key_jwt', {
 		expiresIn: process.env.JWT_EXPIRES_IN || '7d',
 	});
+};
+
+const isAdmin = (user) => {
+	if (!user) return false;
+
+	return adminTypes.includes(String(user.userType));
 };
 
 class AuthController {
@@ -77,14 +96,135 @@ class AuthController {
 	});
 
 	checkAdminRights = catchAsync(async (req, res, next) => {
-		if (
-			![
-				process.env.USER_TYPE_ADMIN || '1',
-				process.env.USER_TYPE_SUPERADMIN || '2',
-			].includes(req.user.userType)
-		) {
+		if (!isAdmin(req.user)) {
 			return next(
 				new AppError('You do not have permission to perform this action', 403),
+			);
+		}
+
+		return next();
+	});
+
+	async canEditBoard (userType, userId, boardId) {
+		const board = await Board.findByPk(boardId);
+		if (!board) throw new AppError('Board not found', 404);
+
+		if (isAdmin({ userType })) return true;
+		if (board.userId === userId) return true;
+
+		const collaborator = await Collaborator.findOne({
+			where: { boardId, userId },
+		});
+
+		return !!collaborator;
+	}
+
+	async canEditColumn (userType, userId, columnId) {
+		const column = await Column.findByPk(columnId);
+		if (!column) throw new AppError('Column not found', 404);
+
+		return this.canEditBoard(userType, userId, column.boardId);
+	}
+
+	async canEditLabels (userType, userId, labelId) {
+		const label = await Label.findByPk(labelId);
+		if (!label) throw new AppError('Label not found', 404);
+
+		return this.canEditBoard(userType, userId, label.boardId);
+	}
+
+	async canEditTask (userType, userId, taskId) {
+		const task = await Task.findByPk(taskId);
+		if (!task) throw new AppError('Task not found', 404);
+
+		const column = await Column.findByPk(task.columnId);
+		if (!column) throw new AppError('Column not found', 404);
+
+		return this.canEditBoard(userType, userId, column.boardId);
+	}
+
+	checkEditBoardRights = catchAsync(async (req, res, next) => {
+		const boardId = req.params.id ?? req.params.boardId;
+		const hasRights = await this.canEditBoard(
+			req.user.userType,
+			req.user.id,
+			boardId,
+		);
+
+		if (!hasRights) {
+			throw new AppError('You do not have permission to edit this board', 403);
+		}
+
+		return next();
+	});
+
+	checkEditColumnRights = catchAsync(async (req, res, next) => {
+		const columnId = req.params.id;
+		const column = await Column.findByPk(columnId);
+		if (!column) throw new AppError('Column not found', 404);
+
+		const hasRights = await this.canEditBoard(
+			req.user.userType,
+			req.user.id,
+			column.boardId,
+		);
+		if (!hasRights) {
+			throw new AppError('You do not have permission to edit this column', 403);
+		}
+
+		return next();
+	});
+
+	checkEditTaskRights = catchAsync(async (req, res, next) => {
+		const taskId = req.params.id;
+		const task = await Task.findByPk(taskId);
+		if (!task) throw new AppError('Task not found', 404);
+
+		const column = await Column.findByPk(task.columnId);
+		if (!column) throw new AppError('Column not found', 404);
+
+		const hasRights = await this.canEditBoard(
+			req.user.userType,
+			req.user.id,
+			column.boardId,
+		);
+		if (!hasRights) {
+			throw new AppError('You do not have permission to edit this task', 403);
+		}
+
+		return next();
+	});
+
+	checkEditLabelRights = catchAsync(async (req, res, next) => {
+		const labelId = req.params.id;
+		const label = await Label.findByPk(labelId);
+		if (!label) throw new AppError('Label not found', 404);
+
+		const hasRights = await this.canEditBoard(
+			req.user.userType,
+			req.user.id,
+			label.boardId,
+		);
+		if (!hasRights) {
+			throw new AppError('You do not have permission to edit this label', 403);
+		}
+
+		return next();
+	});
+
+	checkEditCommentRights = catchAsync(async (req, res, next) => {
+		if (isAdmin(req.user)) {
+			return next();
+		}
+
+		const commentId = req.params.id;
+
+		const comment = await Comment.findOne({
+			where: { id: commentId, userId: req.user.id },
+		});
+		if (!comment) {
+			return next(
+				new AppError("Comment not found or you don't have permission", 404),
 			);
 		}
 

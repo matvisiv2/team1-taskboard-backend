@@ -78,7 +78,7 @@ class TaskController {
 			return next(new AppError('Task not found', 404));
 		}
 
-		return res.status(204);
+		return res.status(204).json({ message: 'Task successfully deleted'} );
 	});
 }
 

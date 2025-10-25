@@ -117,7 +117,7 @@ class UserController {
 
 		await user.destroy();
 
-		return res.status(204);
+		return res.status(204).json({ message: 'User successfully deleted'} );
 	});
 }
 
