@@ -27,10 +27,10 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.INTEGER,
 				defaultValue: 0,
 			},
-			tasksCount: {
+			taskCount: {
 				type: DataTypes.VIRTUAL,
 				get () {
-					return this.getDataValue('tasksCount') || 0;
+					return this.getDataValue('taskCount') || 0;
 				},
 			},
 			createdAt: {
@@ -114,7 +114,7 @@ module.exports = (sequelize, DataTypes) => {
 			const count = await task.count({
 				where: { columnId: columnInstance.id },
 			});
-			columnInstance.setDataValue('tasksCount', count);
+			columnInstance.setDataValue('taskCount', count);
 		};
 
 		if (Array.isArray(result)) {
