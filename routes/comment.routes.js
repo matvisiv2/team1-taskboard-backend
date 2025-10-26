@@ -33,7 +33,7 @@ router.get(
 	AuthController.checkAdminRights,
 	CommentController.getAllComments,
 );
-router.put(
+router.patch(
 	'/comment/:id',
 	AuthController.authentication,
 	AuthController.checkEditCommentRights,
