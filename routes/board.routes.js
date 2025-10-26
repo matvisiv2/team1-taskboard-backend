@@ -36,7 +36,7 @@ router.get(
 	authController.checkAdminRights,
 	boardController.getBoardsAllWithStatistics,
 );
-router.put(
+router.patch(
 	'/board/:id',
 	authController.authentication,
 	authController.checkEditBoardRights,

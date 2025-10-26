@@ -34,10 +34,7 @@ class BoardController {
 			order: [[{ model: Column, as: 'columns' }, 'orderIndex', 'ASC']],
 		});
 
-		return res.status(201).json({
-			status: 'success',
-			result: createdBoard.toJSON(),
-		});
+		return res.status(201).json(createdBoard);
 	});
 
 	getBoardById = catchAsync(async (req, res, next) => {
@@ -63,6 +60,7 @@ class BoardController {
 			attributes: [
 				'id',
 				'title',
+				'createdAt',
 				[
 					Sequelize.fn(
 						'COUNT',
@@ -189,10 +187,7 @@ class BoardController {
 
 		await board.update(req.body);
 
-		return res.status(200).json({
-			status: 'success',
-			result: board.toJSON(),
-		});
+		return res.status(200).json(board);
 	});
 
 	deleteBoard = catchAsync(async (req, res, next) => {
