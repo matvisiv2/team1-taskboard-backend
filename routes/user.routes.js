@@ -21,13 +21,13 @@ router.get(
 	authController.checkAdminRights,
 	userController.getUserById,
 );
-router.put(
+router.patch(
 	'/user/:id',
 	authController.authentication,
 	authController.checkEditUserRights,
 	userController.updateUser,
 );
-router.put(
+router.patch(
 	'/user/:id/change-password',
 	authController.authentication,
 	authController.checkEditUserRights,
