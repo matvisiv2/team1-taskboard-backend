@@ -21,7 +21,7 @@ router.get(
 	AuthController.checkEditBoardRights,
 	ColumnController.getColumnsByBoardWithTasks,
 );
-router.put(
+router.patch(
 	'/column/:id',
 	AuthController.authentication,
 	AuthController.checkEditColumnRights,
