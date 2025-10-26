@@ -21,7 +21,7 @@ router.get(
 	AuthController.checkEditBoardRights,
 	LabelController.getLabelsByBoard,
 );
-router.put(
+router.patch(
 	'/label/:id',
 	AuthController.authentication,
 	AuthController.checkEditLabelRights,
