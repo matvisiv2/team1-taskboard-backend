@@ -33,7 +33,7 @@ router.get(
 	AuthController.checkEditBoardRights,
 	TaskController.getAllTasksByBoard,
 );
-router.put(
+router.patch(
 	'/task/:id',
 	AuthController.authentication,
 	AuthController.checkEditTaskRights,
