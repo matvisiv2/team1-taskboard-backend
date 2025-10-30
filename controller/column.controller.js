@@ -1,6 +1,7 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { board: Board, column: Column, task: Task } = require('../db/models');
+const { isEmpty } = require('../utils/additional');
 
 class ColumnController {
 	createColumn = catchAsync(async (req, res, next) => {
@@ -14,10 +15,7 @@ class ColumnController {
 			boardId: req.params.boardId,
 		});
 
-		return res.status(201).json({
-			status: 'success',
-			result: newColumn,
-		});
+		return res.status(201).json(newColumn);
 	});
 
 	getColumnsByBoard = catchAsync(async (req, res, next) => {
@@ -39,6 +37,10 @@ class ColumnController {
 			],
 		});
 
+		if (isEmpty(columns)) {
+			return res.status(404).json({ message: "There aren't columns" });
+		}
+
 		return res.status(200).json(columns);
 	});
 
@@ -53,7 +55,7 @@ class ColumnController {
 			await Board.increment('reorderCount', { where: { id: column.boardId } });
 		}
 
-		return res.status(200).json({ status: 'success', result: column });
+		return res.status(200).json(column);
 	});
 
 	deleteColumn = catchAsync(async (req, res, next) => {
