@@ -13,10 +13,7 @@ class TaskController {
 			columnId: req.params.columnId,
 		});
 
-		return res.status(201).json({
-			status: 'success',
-			result: newTask,
-		});
+		return res.status(201).json(newTask);
 	});
 
 	getTaskById = catchAsync(async (req, res, next) => {
@@ -63,11 +60,11 @@ class TaskController {
 		}
 
 		await task.update(req.body);
-		if (req.body.orderIndex) {
+		if (req.body?.orderIndex) {
 			await Column.increment('reorderCount', { where: { id: task.columnId } });
 		}
 
-		return res.status(201).json({ status: 'success', result: task });
+		return res.status(201).json(task);
 	});
 
 	deleteTask = catchAsync(async (req, res, next) => {
