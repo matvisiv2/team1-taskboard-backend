@@ -1,4 +1,5 @@
 const express = require('express');
+const { swaggerSpec, swaggerUi } = require('./swagger');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -19,7 +20,9 @@ app.use(cors());
 app.use(helmet()); // helmet is a security middleware that helps us protect our app by setting various HTTP headers
 app.use(morgan('dev')); // log the requests in console
 
-Object.values(routes).forEach(router => app.use('/api', router));
+Object.values(routes).forEach((router) => app.use('/api', router));
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // untracked routes
 app.use(

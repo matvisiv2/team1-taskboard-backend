@@ -53,6 +53,9 @@ class TaskController {
 		return res.status(200).json(tasks);
 	});
 
+	// TODO: task.update(req.body) maybe for PUT
+	// VS task.save() maybe for PATCH
+
 	updateTask = catchAsync(async (req, res, next) => {
 		const task = await Task.findByPk(req.params.id);
 		if (!task) {
