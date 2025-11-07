@@ -1,11 +1,11 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
-const { swaggerSpec, swaggerUi } = require('./swagger');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const { swaggerSpec, swaggerUi } = require('./swagger');
 
 const routes = require('./routes');
 const catchAsync = require('./utils/catchAsync');
