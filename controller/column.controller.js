@@ -52,7 +52,14 @@ class ColumnController {
 
 		await column.update(req.body);
 		if (req.body.orderIndex) {
-			await Board.increment('reorderCount', { where: { id: column.boardId } });
+			const board = await Board.increment('reorderCount', {
+				where: { id: column.boardId },
+			});
+			const str = JSON.stringify(board);
+			const match = str.match(/"reorderCount":(\d+)/);
+			const reorderCount = match ? Number(match[1]) : undefined;
+
+			column.dataValues.updateOrderIndexes = reorderCount == 1 ? true : false;
 		}
 
 		return res.status(200).json(column);

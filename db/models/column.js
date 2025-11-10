@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
 						// if reorderCount more than N — normalize
 						if (
 							board &&
-							board.reorderCount >= (process.env.DB_BOARD_REORDER_COUNT || 10)
+							board.reorderCount >= (process.env.DB_BOARD_REORDER_COUNT || 100)
 						) {
 							const columns = await sequelize.models.column.findAll({
 								where: { boardId: column.boardId },

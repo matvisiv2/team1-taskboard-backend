@@ -88,7 +88,7 @@ module.exports = (sequelize, DataTypes) => {
 						// if reorderCount more than N — normalize
 						if (
 							column &&
-							column.reorderCount >= (process.env.DB_COLUMN_REORDER_COUNT || 10)
+							column.reorderCount >= (process.env.DB_COLUMN_REORDER_COUNT || 100)
 						) {
 							const tasks = await sequelize.models.task.findAll({
 								where: { columnId: task.columnId },

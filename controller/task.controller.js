@@ -64,7 +64,14 @@ class TaskController {
 
 		await task.update(req.body);
 		if (req.body?.orderIndex) {
-			await Column.increment('reorderCount', { where: { id: task.columnId } });
+			const column = await Column.increment('reorderCount', {
+				where: { id: task.columnId },
+			});
+			const str = JSON.stringify(column);
+			const match = str.match(/"reorderCount":(\d+)/);
+			const reorderCount = match ? Number(match[1]) : undefined;
+
+			task.dataValues.updateOrderIndexes = reorderCount == 1 ? true : false;
 		}
 
 		return res.status(201).json(task);
