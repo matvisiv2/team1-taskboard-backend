@@ -3,7 +3,10 @@ const bcrypt = require('bcrypt');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { user: User } = require('../db/models');
+const { board: Board } = require('../db/models');
+const { collaborator: Collaborator } = require('../db/models');
 const { isAdmin } = require('../utils/userHelpers');
+const { Op, literal } = require('sequelize');
 
 class UserController {
 	createUser = catchAsync(async (req, res, next) => {
@@ -19,6 +22,81 @@ class UserController {
 		if (!users) {
 			return next(new AppError('No users found', 404));
 		}
+		return res.status(200).json(users);
+	});
+
+	getUsersToCollaborate = catchAsync(async (req, res, next) => {
+		const currentBoardId = req.params.boardId;
+		const text = req.params.text || '';
+
+		// 1. Get owner ID
+		const board = await Board.findByPk(currentBoardId, {
+			attributes: ['userId'],
+		});
+
+		const ownerId = board.userId;
+
+		// 2. Get collaborator IDs
+		const collaborators = await Collaborator.findAll({
+			attributes: ['userId'],
+			where: { boardId: currentBoardId },
+			raw: true,
+		});
+
+		const excludedIds = [ownerId, ...collaborators.map((c) => c.userId)];
+
+		// 3. Advanced search token
+		const tokens = text
+			.toLowerCase()
+			.split(' ')
+			.filter((t) => t.length > 0);
+
+		// (firstName LIKE token OR lastName LIKE token)
+		const tokenConditions = tokens.map((token) => ({
+			[Op.or]: [
+				{ firstName: { [Op.iLike]: `%${token}%` } },
+				{ lastName: { [Op.iLike]: `%${token}%` } },
+				{ email: { [Op.iLike]: `%${token}%` } },
+			],
+		}));
+
+		// Relevance score
+		// more accurate - higher rating
+		const relevanceSQL = `
+			(CASE
+			WHEN LOWER("firstName") = '${text}' THEN 100
+			WHEN LOWER("lastName") = '${text}' THEN 100
+			WHEN LOWER("email") = '${text}' THEN 100
+
+			WHEN LOWER("firstName") LIKE '${text}%' THEN 90
+			WHEN LOWER("lastName") LIKE '${text}%' THEN 90
+			WHEN LOWER("email") LIKE '${text}%' THEN 90
+
+			WHEN LOWER("firstName") LIKE '%${text}%' THEN 60
+			WHEN LOWER("lastName") LIKE '%${text}%' THEN 60
+			WHEN LOWER("email") LIKE '%${text}%' THEN 60
+
+			ELSE 0
+			END) AS relevance
+ 		`;
+
+		// 4. Query eligible users directly in DB
+		const users = await User.findAll({
+			attributes: [
+				'id',
+				'firstName',
+				'lastName',
+				literal(relevanceSQL),
+			],
+			where: {
+				id: { [Op.notIn]: excludedIds },
+				...(tokens.length > 0 ? { [Op.and]: tokenConditions } : {}),
+			},
+			order: [literal('relevance DESC')],
+			limit: 5,
+			raw: true,
+		});
+
 		return res.status(200).json(users);
 	});
 

@@ -82,6 +82,29 @@ router.get(
 
 /**
  * @swagger
+ * /users-to-collaborate/:boardId:
+ *   get:
+ *     summary: Get potential collaborators
+ *     description: Returns a list of potential collaborators for board.
+ *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of users
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden
+ */
+router.get(
+	'/users-to-collaborate/:boardId/:text',
+	authController.authentication,
+	userController.getUsersToCollaborate,
+);
+
+/**
+ * @swagger
  * /user/{id}:
  *   get:
  *     summary: Get a user by ID (admin only)

@@ -30,7 +30,14 @@ class ColumnController {
 	getColumnsByBoardWithTasks = catchAsync(async (req, res, next) => {
 		const columns = await Column.findAll({
 			where: { boardId: req.params.boardId },
-			include: ['tasks'],
+			include: [
+				{
+					model: Task,
+					as: 'tasks',
+					where: { archived: false },
+					required: false,
+				},
+			],
 			order: [
 				['orderIndex', 'ASC'],
 				[{ model: Task, as: 'tasks' }, 'orderIndex', 'ASC'],

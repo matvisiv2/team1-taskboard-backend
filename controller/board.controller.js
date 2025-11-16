@@ -1,15 +1,15 @@
-const Sequelize = require('sequelize');
+const { Sequelize, Op, literal } = require('sequelize');
 
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const {
+	user: User,
 	board: Board,
 	collaborator: Collaborator,
 	column: Column,
 	task: Task,
 	comment: Comment,
 } = require('../db/models');
-const { where } = require('sequelize');
 
 class BoardController {
 	createBoard = catchAsync(async (req, res, next) => {
@@ -46,17 +46,46 @@ class BoardController {
 		return res.status(200).json(board);
 	});
 
+	getBoardByIdWithLabelsAndCollaborators = catchAsync(
+		async (req, res, next) => {
+			const board = await Board.findByPk(req.params.id, {
+				include: ['labels', 'collaborators'],
+			});
+			if (!board) {
+				return next(new AppError('Board not found', 404));
+			}
+
+			return res.status(200).json(board);
+		},
+	);
+
 	getBoards = catchAsync(async (req, res, next) => {
 		const boards = await Board.findAll({
-			where: { userId: req.user.id },
+			where: {
+				[Op.or]: [
+					{ userId: req.user.id },
+					literal(
+						`id IN (SELECT "boardId" FROM collaborator WHERE "userId" = ${req.user.id})`,
+					),
+				],
+			},
 		});
 
 		return res.status(200).json(boards);
 	});
 
 	getBoardsWithStatistics = catchAsync(async (req, res, next) => {
+		const userId = req.user.id;
+
 		const boards = await Board.findAll({
-			where: { userId: req.user.id },
+			where: {
+				[Op.or]: [
+					{ userId },
+					literal(
+						`"board"."id" IN (SELECT "collaborator"."boardId" FROM "collaborator" WHERE "collaborator"."userId" = ${userId})`,
+					),
+				],
+			},
 			attributes: [
 				'id',
 				'title',
@@ -110,6 +139,7 @@ class BoardController {
 			group: ['board.id'],
 			order: [['id', 'ASC']],
 			subQuery: false,
+			raw: true,
 		});
 
 		return res.status(200).json(boards);

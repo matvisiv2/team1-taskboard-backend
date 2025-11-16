@@ -78,6 +78,37 @@ router.get(
 
 /**
  * @swagger
+ * /board-with-labels-and-collaborators/{id}:
+ *   get:
+ *     summary: Get a board by ID
+ *     description: Returns board details by its ID.
+ *     tags: [Board]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Board ID
+ *     responses:
+ *       200:
+ *         description: Board found
+ *       404:
+ *         description: Board not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.get(
+	'/board-with-labels-and-collaborators/:id',
+	authController.authentication,
+	authController.checkEditBoardRights,
+	boardController.getBoardByIdWithLabelsAndCollaborators,
+);
+
+/**
+ * @swagger
  * /boards:
  *   get:
  *     summary: Get all user boards
