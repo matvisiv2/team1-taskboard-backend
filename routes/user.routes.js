@@ -172,9 +172,8 @@ router.get(
  *         description: Unauthorized
  */
 router.patch(
-	'/user/:id',
+	'/user',
 	authController.authentication,
-	authController.checkEditUserRights,
 	userController.updateUser,
 );
 
@@ -219,9 +218,8 @@ router.patch(
  *         description: Unauthorized
  */
 router.patch(
-	'/user/:id/change-password',
+	'/user/change-password',
 	authController.authentication,
-	authController.checkEditUserRights,
 	userController.changePassword,
 );
 

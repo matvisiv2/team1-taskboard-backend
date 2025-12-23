@@ -251,7 +251,7 @@ router.patch(
 router.delete(
 	'/board/:id',
 	authController.authentication,
-	authController.checkEditBoardRights,
+	authController.checkDeleteBoardRights,
 	boardController.deleteBoard,
 );
 

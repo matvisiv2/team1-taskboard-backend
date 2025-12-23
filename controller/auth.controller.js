@@ -105,6 +105,15 @@ class AuthController {
 		return !!collaborator;
 	}
 
+	async canDeleteBoard (user, boardId) {
+		if (isAdmin(user)) return true;
+
+		const board = await Board.findByPk(boardId);
+		if (!board) throw new AppError('Board not found', 404);
+
+		return board.userId === user.id;
+	}
+
 	async canEditColumn (user, columnId) {
 		if (isAdmin(user)) return true;
 
@@ -154,6 +163,20 @@ class AuthController {
 
 		if (!hasRights) {
 			throw new AppError('You do not have permission to edit this board', 403);
+		}
+
+		return next();
+	});
+
+	checkDeleteBoardRights = catchAsync(async (req, res, next) => {
+		const boardId = req.params.id ?? req.params.boardId;
+		const hasRights = await this.canDeleteBoard(req.user, boardId);
+
+		if (!hasRights) {
+			throw new AppError(
+				'You do not have permission to delete this board',
+				403,
+			);
 		}
 
 		return next();

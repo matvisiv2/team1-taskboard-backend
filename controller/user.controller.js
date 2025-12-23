@@ -82,12 +82,7 @@ class UserController {
 
 		// 4. Query eligible users directly in DB
 		const users = await User.findAll({
-			attributes: [
-				'id',
-				'firstName',
-				'lastName',
-				literal(relevanceSQL),
-			],
+			attributes: ['id', 'firstName', 'lastName', literal(relevanceSQL)],
 			where: {
 				id: { [Op.notIn]: excludedIds },
 				...(tokens.length > 0 ? { [Op.and]: tokenConditions } : {}),
@@ -111,37 +106,26 @@ class UserController {
 	updateUser = catchAsync(async (req, res, next) => {
 		const userData = req.body;
 
-		if (req.user.id != req.params.id) {
-			if (!isAdmin(user)) {
-				return next(
-					new AppError('You do not have permission to update this user', 403),
-				);
-			}
-		}
-
-		if (req.user.id == req.params.id) {
-			userData.userType = req.user.userType; // Prevent user from changing their own userType
-		}
-
-		const user = await User.findByPk(req.params.id);
+		const user = await User.findByPk(req.user.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
 		}
 
 		await user.update({
-			userType: userData.userType,
 			firstName: userData.firstName,
 			lastName: userData.lastName,
 			email: userData.email,
 		});
 
-		return res.status(200).json(user);
+		return res
+			.status(200)
+			.json({ message: 'User information updated successfully' });
 	});
 
 	// TODO: Implement change user email functionality
 
 	changePassword = catchAsync(async (req, res, next) => {
-		const user = await User.findByPk(req.params.id);
+		const user = await User.findByPk(req.user.id);
 		if (!user) {
 			return next(new AppError('User not found', 404));
 		}
