@@ -17,11 +17,13 @@ const {
 
 class AuthController {
 	signUp = catchAsync(async (req, res, next) => {
-		const body = req.body;
+		console.log("User.create start");
+		console.log(req.body);
 		const newUser = await User.create({
 			...req.body,
 			userType: process.env.USER_TYPE_USER || '0',
 		});
+		console.log("User.create end");
 
 		if (!newUser) {
 			return next(new AppError('Failed to create user', 400));

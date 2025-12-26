@@ -1,12 +1,18 @@
 {
 	"development": {
-		"username": "postgres",
-		"password": "postgres",
+		"username": "team1_taskboard_dev_db_user",
+		"password": "36K6cS6RSKmnlwu4PNK1gdPtK0SXlax9",
 		"database": "team1_taskboard_dev_db",
-		"host": "localhost",
+		"host": "dpg-d55a0uq4d50c739qsjb0-a.virginia-postgres.render.com",
 		"port": "5432",
 		"dialect": "postgres",
-		"seederStorage": "sequelize"
+		"seederStorage": "sequelize",
+		"dialectOptions": {
+			"ssl": {
+				"require": true,
+				"rejectUnauthorized": false
+			}
+		}
 	},
 	"test": {
 		"username": "postgres",
@@ -22,6 +28,12 @@
 		"database": "team1_taskboard_prod_db",
 		"host": "localhost",
 		"port": "5432",
-		"dialect": "postgres"
+		"dialect": "postgres",
+		"dialectOptions": {
+			"ssl": {
+				"require": true,
+				"rejectUnauthorized": false
+			}
+		}
 	}
 }

@@ -17,6 +17,24 @@ module.exports = {
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			},
+			{
+				userType: process.env.USER_TYPE_USER || '0',
+				firstName: 'Juliette',
+				lastName: 'Gift',
+				email: 'Juliette@gmail.com',
+				password: bcrypt.hashSync('Juliette@gmail.com', process.env.BCRYPT_ROUND || 10),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
+			{
+				userType: process.env.USER_TYPE_USER || '0',
+				firstName: 'Ron',
+				lastName: 'Gilbert',
+				email: 'Gilbert@gmail.com',
+				password: bcrypt.hashSync('Gilbert@gmail.com', process.env.BCRYPT_ROUND || 10),
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			},
 		]);
 	},
 	down: (queryInterface, Sequelize) => {
